@@ -28,6 +28,9 @@ Route::post('/user/check/login', [AuthController::class, 'checkTokenExpiration']
 Route::post('/user/check-token', [AuthController::class, 'checkToken']);
 Route::post('/user/register', [AuthController::class, 'register']);
 
+
+
+
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/user/logout', [AuthController::class, 'logout'])->name('user.logout');
 
@@ -38,6 +41,10 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/{id}', [RoleUserController::class, 'show']);
         Route::delete('/{id}', [RoleUserController::class, 'destroy']);
     });
+
+    Route::post('/user/update', [UserController::class, 'update']);
+
+
 
     Route::post('users/change-password', [UserController::class, 'changePassword'])
         ->name('users.change_password')

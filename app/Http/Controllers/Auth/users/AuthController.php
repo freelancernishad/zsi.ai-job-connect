@@ -128,22 +128,7 @@ public function checkToken(Request $request)
          public function register(Request $request)
          {
              $validator = Validator::make($request->all(), [
-                 'name' => 'required|string|max:255',
-                 'mobile' => [
-                     'required',
-                     'string',
-                     'min:11',
-                     'max:11',
-                     Rule::unique('users'),
-                 ],
-                //  'blood_group' => 'required|string|max:5',
                  'email' => 'required|string|email|max:255|unique:users',
-                //  'gender' => 'required|string|max:10',
-                //  'division' => 'required|string|max:255',
-                //  'district' => 'required|string|max:255',
-                //  'thana' => 'required|string|max:255',
-                //  'union' => 'required|string|max:255',
-                //  'org' => 'nullable|string|max:255',
                  'password' => 'required|string|min:8',
              ]);
 
@@ -152,33 +137,16 @@ public function checkToken(Request $request)
              }
 
              $user = new User([
-                 'name' => $request->name,
-                 'mobile' => $request->mobile,
-                //  'blood_group' => $request->blood_group,
                  'email' => $request->email,
-                //  'gender' => $request->gender,
-                //  'guardian_phone' => $request->guardian_phone,
-                //  'last_donate_date' => $request->last_donate_date,
-                //  'whatsapp_number' => $request->whatsapp_number,
-                //  'division' => $request->division,
-                //  'district' => $request->district,
-                //  'thana' => $request->thana,
-                //  'union' => $request->union,
-                //  'org' => $request->org,
                  'password' => Hash::make($request->password),
              ]);
 
              $user->save();
 
-
-
              $token = JWTAuth::fromUser($user);
              return response()->json(['token' => $token], 201);
-             // You can generate a JWT token here and return it if needed
-             // Refer to your JWT library's documentation for this
-
-            //  return response()->json(['message' => 'User registered successfully'], 201);
          }
+
 
 
 
