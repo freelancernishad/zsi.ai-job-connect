@@ -15,13 +15,13 @@ class UserController extends Controller
 {
 
      // User update
-     public function update(Request $request, $id)
+     public function registerStep2(Request $request)
      {
          // Get the authenticated user via JWT
-         $authUser = auth()->user();
+         $user = auth()->user();
 
          // Find the user by ID
-         $user = User::find($id);
+        //  $user = User::find($id);
 
          // Check if user exists
          if (!$user) {
@@ -174,7 +174,7 @@ class UserController extends Controller
              }
          }
 
-         return response()->json(['message' => 'User updated successfully'], 200);
+         return response()->json(['message' => 'User Registraion Conpleted'], 200);
      }
 
      // User delete

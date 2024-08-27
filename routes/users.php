@@ -42,7 +42,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::delete('/{id}', [RoleUserController::class, 'destroy']);
     });
 
-    Route::post('/user/update', [UserController::class, 'update']);
+    Route::post('/user/register/step2', [UserController::class, 'registerStep2']);
 
 
 
