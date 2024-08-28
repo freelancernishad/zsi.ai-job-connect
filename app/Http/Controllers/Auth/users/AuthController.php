@@ -130,6 +130,7 @@ public function checkToken(Request $request)
              $validator = Validator::make($request->all(), [
                  'email' => 'required|string|email|max:255|unique:users',
                  'password' => 'required|string|min:8',
+                 'role' => 'required',
              ]);
 
              if ($validator->fails()) {
@@ -139,12 +140,20 @@ public function checkToken(Request $request)
              $user = new User([
                  'email' => $request->email,
                  'password' => Hash::make($request->password),
+                 'role' => $request->role,
              ]);
 
              $user->save();
 
+             $payload = [
+                'email' => $user->email,
+                'role' => $user->role,
+            ];
+
+
+
              $token = JWTAuth::fromUser($user);
-             return response()->json(['token' => $token], 201);
+             return response()->json(['token' => $token,'user'=>$payload], 201);
          }
 
 
