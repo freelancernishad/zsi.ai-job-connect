@@ -23,7 +23,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000'),'http://localhost:5173','https://blood-suyel.netlify.app'],
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000'),'http://localhost:5173','https://blood-suyel.netlify.app','https://jobconnectusa.com','https://job-connect-pi.vercel.app'],
 
     'allowed_origins_patterns' => [],
 
