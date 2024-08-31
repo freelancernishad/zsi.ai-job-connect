@@ -37,7 +37,7 @@ class AuthController extends Controller
             // $token = JWTAuth::fromUser($user);
              $payload = [
             'email' => $user->email,
-            'name' => $user->name,
+            'role' => $user->role,
         ];
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             return response()->json(['token' => $token,'user'=>$payload], 200);
