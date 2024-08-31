@@ -18,7 +18,6 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        return $request->all();
         // Check if access_token is provided
         if ($request->has('access_token')) {
             // Validate access_token and role
@@ -26,39 +25,42 @@ class AuthController extends Controller
                 'access_token' => 'required|string',
                 'role' => 'required',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
-
+    
             // Verify the access token using Google's tokeninfo endpoint
             $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
                 'access_token' => $request->access_token,
             ]);
-
+    
             if ($response->failed()) {
                 return response()->json(['error' => 'Invalid access token'], 400);
             }
-
+    
             $userData = $response->json();
-
+    
             // Check if the email exists in your database
             $user = User::where('email', $userData['email'])->first();
             if (!$user) {
                 // If user does not exist, create a new user
+                $username = explode('@', $userData['email'])[0]; // Extract username from email
                 $user = User::create([
+                    'username' => $username,
                     'email' => $userData['email'],
                     'password' => Hash::make(Str::random(16)), // Generate a random password
                     'role' => $request->role,
                 ]);
             }
-
+    
             // Login the user
             Auth::login($user);
-
+    
             $payload = [
                 'email' => $user->email,
                 'role' => $user->role,
+                'username' => $user->username, // Include username here
             ];
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             return response()->json(['token' => $token, 'user' => $payload], 200);
@@ -68,29 +70,31 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'password' => 'required|string',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
-
+    
             $credentials = [
                 'email' => $request->email,
                 'password' => $request->password,
             ];
-
+    
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 $payload = [
                     'email' => $user->email,
                     'role' => $user->role,
+                    'username' => $user->username, // Include username here
                 ];
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
                 return response()->json(['token' => $token, 'user' => $payload], 200);
             }
-
+    
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     }
+    
 
 
 public function checkTokenExpiration(Request $request)
@@ -168,77 +172,86 @@ public function checkToken(Request $request)
     }
 
 
-
     public function register(Request $request)
-{
-    if ($request->has('access_token')) {
-        // Validate access_token and role
-        $validator = Validator::make($request->all(), [
-            'access_token' => 'required|string',
-            'role' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+    {
+        if ($request->has('access_token')) {
+            // Validate access_token and role
+            $validator = Validator::make($request->all(), [
+                'access_token' => 'required|string',
+                'role' => 'required',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+    
+            // Fetch user info from Google API using the access token
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $request->access_token,
+            ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
+    
+            if ($response->failed()) {
+                return response()->json(['error' => 'Invalid access token'], 400);
+            }
+    
+            $userData = $response->json();
+    
+            // Check if the email already exists
+            $existingUser = User::where('email', $userData['email'])->first();
+            if ($existingUser) {
+                return response()->json(['error' => 'Email already registered'], 400);
+            }
+    
+            // Extract username from email
+            $username = explode('@', $userData['email'])[0];
+    
+            // Create a new user
+            $user = new User([
+                'username' => $username,
+                'email' => $userData['email'],
+                'password' => Hash::make(Str::random(16)), // Generate a random password since it's not provided
+                'role' => $request->role,
+            ]);
+    
+            $user->save();
+        } else {
+            // Validate email, password, and role
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+                'role' => 'required',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+    
+            // Extract username from email
+            $username = explode('@', $request->email)[0];
+    
+            // Create a new user
+            $user = new User([
+                'username' => $username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+            ]);
+    
+            $user->save();
         }
-
-        // Fetch user info from Google API using the access token
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $request->access_token,
-        ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
-
-        if ($response->failed()) {
-            return response()->json(['error' => 'Invalid access token'], 400);
-        }
-
-        $userData = $response->json();
-
-        // Check if the email already exists
-        $existingUser = User::where('email', $userData['email'])->first();
-        if ($existingUser) {
-            return response()->json(['error' => 'Email already registered'], 400);
-        }
-
-        // Create a new user
-        $user = new User([
-            'email' => $userData['email'],
-            'password' => Hash::make(Str::random(16)), // Generate a random password since it's not provided
-            'role' => $request->role,
-        ]);
-
-        $user->save();
-    } else {
-        // Validate email, password, and role
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        // Create a new user
-        $user = new User([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
-
-        $user->save();
+    
+        // Build the payload including the username
+        $payload = [
+            'email' => $user->email,
+            'role' => $user->role,
+            'username' => $user->username, // Include username here
+        ];
+    
+        $token = JWTAuth::fromUser($user);
+    
+        return response()->json(['token' => $token, 'user' => $payload], 201);
     }
-
-    $payload = [
-        'email' => $user->email,
-        'role' => $user->role,
-    ];
-
-    $token = JWTAuth::fromUser($user);
-
-    return response()->json(['token' => $token, 'user' => $payload], 201);
-}
-
+    
 
 
 
