@@ -24,7 +24,7 @@ Route::delete('roles/{role}/permissions/{permission}', [RolePermissionController
 
 // User authentication routes
 Route::post('/user/login', [AuthController::class, 'login'])->name('login');
-Route::post('/user/check/login', [AuthController::class, 'checkTokenExpiration'])->name('checklogin');
+Route::get('/user/check/login', [AuthController::class, 'checkTokenExpiration'])->name('checklogin');
 Route::post('/user/check-token', [AuthController::class, 'checkToken']);
 Route::post('/user/register', [AuthController::class, 'register']);
 
