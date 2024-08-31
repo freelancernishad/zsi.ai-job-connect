@@ -51,17 +51,21 @@ class AuthController extends Controller
                     'email' => $userData['email'],
                     'password' => Hash::make(Str::random(16)), // Generate a random password
                     'role' => $request->role,
+                    'step' => 1, // Set step value to 1
                 ]);
             }
     
             // Login the user
             Auth::login($user);
     
+            // Build the payload including the username and step
             $payload = [
                 'email' => $user->email,
                 'role' => $user->role,
                 'username' => $user->username, // Include username here
+                'step' => $user->step, // Include step here
             ];
+    
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             return response()->json(['token' => $token, 'user' => $payload], 200);
         } else {
@@ -82,11 +86,15 @@ class AuthController extends Controller
     
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
+    
+                // Build the payload including the username and step
                 $payload = [
                     'email' => $user->email,
                     'role' => $user->role,
                     'username' => $user->username, // Include username here
+                    'step' => $user->step, // Include step here
                 ];
+    
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
                 return response()->json(['token' => $token, 'user' => $payload], 200);
             }
@@ -94,6 +102,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     }
+    
     
 
 
@@ -211,6 +220,7 @@ public function checkToken(Request $request)
                 'email' => $userData['email'],
                 'password' => Hash::make(Str::random(16)), // Generate a random password since it's not provided
                 'role' => $request->role,
+                'step' => 1, // Set step value to 1
             ]);
     
             $user->save();
@@ -235,22 +245,28 @@ public function checkToken(Request $request)
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
+                'step' => 1, // Set step value to 1
             ]);
     
             $user->save();
         }
     
-        // Build the payload including the username
+        // Build the payload including the username and step
         $payload = [
             'email' => $user->email,
             'role' => $user->role,
             'username' => $user->username, // Include username here
+            'step' => $user->step, // Include step here
         ];
     
+        // Generate JWT token
         $token = JWTAuth::fromUser($user);
     
+        // Return the response with token and user data
         return response()->json(['token' => $token, 'user' => $payload], 201);
     }
+    
+    
     
 
 

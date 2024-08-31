@@ -39,6 +39,7 @@ class User extends Authenticatable implements JWTSubject
         'preferred_work_zipcode',
         'your_experience',
         'familiar_with_safety_protocols',
+        'step',
     ];
 
     /**
