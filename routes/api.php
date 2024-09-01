@@ -9,6 +9,9 @@ use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\SocialLinkController;
 use App\Http\Controllers\AdvertisementController;
 
+use App\Http\Controllers\Global\ServiceController as GlobalServiceController;
+use App\Http\Controllers\Global\SkillListController as GlobalSkillListController;
+use App\Http\Controllers\Backend\SkillListController as BackendSkillListController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,3 +42,14 @@ Route::get('advertisements', [AdvertisementController::class, 'index']);
 
 Route::get('/visitors', [VisitorController::class, 'index']);
 Route::get('/visitors/reports', [VisitorController::class, 'generateReports']);
+
+
+
+
+Route::get('services', [GlobalServiceController::class, 'index']);
+Route::get('services/{id}', [GlobalServiceController::class, 'show']);
+
+Route::get('skill-lists', [GlobalSkillListController::class, 'index']);
+Route::post('add/skill-lists', [BackendSkillListController::class, 'store']);
+Route::get('skill-lists/{id}', [GlobalSkillListController::class, 'show']);
+Route::get('services/{serviceId}/skill-lists', [GlobalSkillListController::class, 'listByService']);
