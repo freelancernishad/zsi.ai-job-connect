@@ -19,12 +19,12 @@ class UserController extends Controller
      {
          // Get the authenticated user via JWT
          $user = auth()->user();
-     
+
          // Check if user exists
          if (!$user) {
              return response()->json(['message' => 'User not found'], 404);
          }
-     
+
          $validator = Validator::make($request->all(), [
              'first_name' => 'nullable|string|max:255',
              'last_name' => 'nullable|string|max:255',
@@ -44,40 +44,43 @@ class UserController extends Controller
              'preferred_work_zipcode' => 'nullable|string|max:10',
              'your_experience' => 'nullable|string',
              'familiar_with_safety_protocols' => 'nullable|boolean',
-     
+
              // Validation for related models
              'languages' => 'nullable|array',
              'languages.*.language' => 'required_with:languages|string|max:255',
              'languages.*.level' => 'required_with:languages|string|max:255',
-     
+
              'certifications' => 'nullable|array',
              'certifications.*.name' => 'required_with:certifications|string|max:255',
              'certifications.*.certified_from' => 'required_with:certifications|string|max:255',
              'certifications.*.year' => 'required_with:certifications|integer|digits:4',
-     
+
              'skills' => 'nullable|array',
              'skills.*.name' => 'required_with:skills|string|max:255',
              'skills.*.level' => 'required_with:skills|string|max:255',
-     
+
              'education' => 'nullable|array',
              'education.*.school_name' => 'required_with:education|string|max:255',
              'education.*.qualifications' => 'required_with:education|string|max:255',
              'education.*.start_date' => 'required_with:education|date',
              'education.*.end_date' => 'nullable|date|after_or_equal:education.*.start_date',
              'education.*.notes' => 'nullable|string',
-     
+
              'employment_history' => 'nullable|array',
              'employment_history.*.company' => 'required_with:employment_history|string|max:255',
              'employment_history.*.position' => 'required_with:employment_history|string|max:255',
-             'employment_history.*.dates' => 'required_with:employment_history|string|max:255',
+
+             'employment_history.*.start_date' => 'required_with:employment_history|string|max:255',
+             'employment_history.*.end_date' => 'required_with:employment_history|string|max:255',
+
              'employment_history.*.responsibilities' => 'nullable|string',
             'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
          ]);
-     
+
          if ($validator->fails()) {
              return response()->json(['errors' => $validator->errors()], 400);
          }
-     
+
          // Update the user's fields
          $user->first_name = $request->first_name ?? $user->first_name;
          $user->last_name = $request->last_name ?? $user->last_name;
@@ -92,7 +95,7 @@ class UserController extends Controller
          $user->preferred_work_zipcode = $request->preferred_work_zipcode ?? $user->preferred_work_zipcode;
          $user->your_experience = $request->your_experience ?? $user->your_experience;
          $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols ?? $user->familiar_with_safety_protocols;
-     
+
          // Save the user
          $user->step = 2; // Set step value to 2
 
@@ -107,10 +110,10 @@ class UserController extends Controller
 
 
          $user->save();
-     
+
          // Update related models: languages, certifications, skills, education, employment history, etc.
          // Ensure you are handling the request data and models properly
-     
+
          if ($request->has('languages')) {
              // Update user's languages
              foreach ($request->languages as $languageData) {
@@ -123,7 +126,7 @@ class UserController extends Controller
                  );
              }
          }
-     
+
          if ($request->has('certifications')) {
              // Update user's certifications
              foreach ($request->certifications as $certificationData) {
@@ -137,7 +140,7 @@ class UserController extends Controller
                  );
              }
          }
-     
+
          if ($request->has('skills')) {
              // Update user's skills
              foreach ($request->skills as $skillData) {
@@ -150,7 +153,7 @@ class UserController extends Controller
                  );
              }
          }
-     
+
          if ($request->has('education')) {
              // Update user's education
              foreach ($request->education as $educationData) {
@@ -166,7 +169,7 @@ class UserController extends Controller
                  );
              }
          }
-     
+
          if ($request->has('employment_history')) {
              // Update user's employment history
              foreach ($request->employment_history as $employmentData) {
@@ -175,16 +178,17 @@ class UserController extends Controller
                      [
                          'company' => $employmentData['company'],
                          'position' => $employmentData['position'],
-                         'dates' => $employmentData['dates'],
+                         'start_date' => $employmentData['start_date'],
+                         'end_date' => $employmentData['end_date'],
                          'responsibilities' => $employmentData['responsibilities'],
                      ]
                  );
              }
          }
-     
+
          return response()->json(['message' => 'User registration completed'], 200);
      }
-     
+
 
      // User delete
      public function delete($id)
