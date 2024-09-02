@@ -105,7 +105,40 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     }
+    public function resendVerificationLink(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            // Optionally validate verify_url if it's part of the request
+            'verify_url' => 'nullable|url',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Find the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Check if the user exists and if the email is not already verified
+        if (!$user || $user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email is either already verified or user does not exist.'], 400);
+        }
+
+        // Generate a new verification token
+        $verificationToken = Str::random(60); // Generate a unique token
+        $user->email_verification_hash = $verificationToken;
+        $user->save();
+
+        // Build the new verification URL
+        $verify_url = $request->verify_url;
+
+        // Resend the verification email
+        $user->notify(new VerifyEmail($user, $verify_url));
+
+        return response()->json(['message' => 'Verification link has been sent.'], 200);
+    }
 
 
 
