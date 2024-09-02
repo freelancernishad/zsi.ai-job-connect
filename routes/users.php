@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\RoleUserController;
+use App\Http\Controllers\api\MediaController;
 use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
@@ -54,6 +55,17 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('/resumes/{id}', [ResumeController::class, 'destroy']);
 
      Route::get('/authenticated/user/resumes', [ResumeController::class, 'getByAuthenticatedUser']);
+
+
+
+     Route::prefix('media')->group(function () {
+        Route::post('/', [MediaController::class, 'store']);
+        Route::get('/', [MediaController::class, 'index']);
+        Route::get('/{id}', [MediaController::class, 'show']);
+        Route::put('/{id}', [MediaController::class, 'update']);
+        Route::delete('/{id}', [MediaController::class, 'destroy']);
+    });
+
 
 
 
