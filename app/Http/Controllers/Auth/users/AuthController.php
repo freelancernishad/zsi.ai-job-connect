@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Notifications\VerifyEmail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -25,22 +26,22 @@ class AuthController extends Controller
                 'access_token' => 'required|string',
                 'role' => 'required',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
-    
+
             // Verify the access token using Google's tokeninfo endpoint
             $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
                 'access_token' => $request->access_token,
             ]);
-    
+
             if ($response->failed()) {
                 return response()->json(['error' => 'Invalid access token'], 400);
             }
-    
+
             $userData = $response->json();
-    
+
             // Check if the email exists in your database
             $user = User::where('email', $userData['email'])->first();
             if (!$user) {
@@ -54,10 +55,10 @@ class AuthController extends Controller
                     'step' => 1, // Set step value to 1
                 ]);
             }
-    
+
             // Login the user
             Auth::login($user);
-    
+
             // Build the payload including the username and step
             $payload = [
                 'email' => $user->email,
@@ -65,7 +66,7 @@ class AuthController extends Controller
                 'username' => $user->username, // Include username here
                 'step' => $user->step, // Include step here
             ];
-    
+
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             return response()->json(['token' => $token, 'user' => $payload], 200);
         } else {
@@ -74,19 +75,19 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'password' => 'required|string',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
-    
+
             $credentials = [
                 'email' => $request->email,
                 'password' => $request->password,
             ];
-    
+
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
-    
+
                 // Build the payload including the username and step
                 $payload = [
                     'email' => $user->email,
@@ -94,16 +95,16 @@ class AuthController extends Controller
                     'username' => $user->username, // Include username here
                     'step' => $user->step, // Include step here
                 ];
-    
+
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
                 return response()->json(['token' => $token, 'user' => $payload], 200);
             }
-    
+
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     }
-    
-    
+
+
 
 
 public function checkTokenExpiration(Request $request)
@@ -189,31 +190,31 @@ public function checkToken(Request $request)
                 'access_token' => 'required|string',
                 'role' => 'required',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-    
+
             // Fetch user info from Google API using the access token
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $request->access_token,
             ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
-    
+
             if ($response->failed()) {
                 return response()->json(['error' => 'Invalid access token'], 400);
             }
-    
+
             $userData = $response->json();
-    
+
             // Check if the email already exists
             $existingUser = User::where('email', $userData['email'])->first();
             if ($existingUser) {
                 return response()->json(['error' => 'Email already registered'], 400);
             }
-    
+
             // Extract username from email
             $username = explode('@', $userData['email'])[0];
-    
+
             // Create a new user
             $user = new User([
                 'username' => $username,
@@ -222,7 +223,7 @@ public function checkToken(Request $request)
                 'role' => $request->role,
                 'step' => 1, // Set step value to 1
             ]);
-    
+
             $user->save();
         } else {
             // Validate email, password, and role
@@ -230,15 +231,16 @@ public function checkToken(Request $request)
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
                 'role' => 'required',
+                'verify_url' => 'required|url', // Ensure verify_url is a valid URL
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-    
+
             // Extract username from email
             $username = explode('@', $request->email)[0];
-    
+
             // Create a new user
             $user = new User([
                 'username' => $username,
@@ -246,11 +248,25 @@ public function checkToken(Request $request)
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
                 'step' => 1, // Set step value to 1
+                'email_verification_hash' => Str::random(60),
             ]);
-    
+
             $user->save();
+
+
+            // Generate verification URL
+            $verify_url = $request->verify_url;
+
+            // Send email verification
+            $user->notify(new VerifyEmail($user, $verify_url));
+
+
         }
-    
+
+
+
+
+
         // Build the payload including the username and step
         $payload = [
             'email' => $user->email,
@@ -258,16 +274,16 @@ public function checkToken(Request $request)
             'username' => $user->username, // Include username here
             'step' => $user->step, // Include step here
         ];
-    
+
         // Generate JWT token
         $token = JWTAuth::fromUser($user);
-    
+
         // Return the response with token and user data
         return response()->json(['token' => $token, 'user' => $payload], 201);
     }
-    
-    
-    
+
+
+
 
 
 

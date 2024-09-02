@@ -9,6 +9,7 @@ use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
+use App\Http\Controllers\Auth\users\VerificationController;
 use App\Http\Controllers\Auth\users\PasswordResetController;
 
 Route::post('store/permissions', [RolePermissionController::class, 'storePermissions']);
@@ -30,6 +31,11 @@ Route::post('/user/login', [AuthController::class, 'login'])->name('login');
 Route::get('/user/check/login', [AuthController::class, 'checkTokenExpiration'])->name('checklogin');
 Route::post('/user/check-token', [AuthController::class, 'checkToken']);
 Route::post('/user/register', [AuthController::class, 'register']);
+
+// Email verification route
+Route::get('/email/verify/{hash}', [VerificationController::class, 'verifyEmail']);
+
+Route::post('/resend/verification-link', [AuthController::class, 'resendVerificationLink']);
 
 
 
@@ -72,7 +78,7 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 
-    
+
     Route::post('users/change-password', [UserController::class, 'changePassword'])
         ->name('users.change_password')
         ->middleware('checkPermission:users.change_password');

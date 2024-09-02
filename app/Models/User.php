@@ -41,6 +41,7 @@ class User extends Authenticatable implements JWTSubject
         'familiar_with_safety_protocols',
         'step',
         'resume',
+        'email_verification_hash'
     ];
 
     /**
@@ -150,5 +151,5 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Resume::class);
     }
-    
+
 }
