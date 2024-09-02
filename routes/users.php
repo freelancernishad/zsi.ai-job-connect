@@ -8,6 +8,7 @@ use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
+use App\Http\Controllers\Auth\users\PasswordResetController;
 
 Route::post('store/permissions', [RolePermissionController::class, 'storePermissions']);
 
@@ -57,6 +58,8 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 
+
+
     
     Route::post('users/change-password', [UserController::class, 'changePassword'])
         ->name('users.change_password')
@@ -66,6 +69,11 @@ Route::middleware(['auth:api'])->group(function () {
         return 'user access';
     })->name('user.access')->middleware('checkPermission:user.access');
 });
+
+
+
+Route::post('password/email', [PasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('password/reset', [PasswordResetController::class, 'reset']);
 
 
 
