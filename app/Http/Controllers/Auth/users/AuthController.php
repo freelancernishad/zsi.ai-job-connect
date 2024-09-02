@@ -65,6 +65,7 @@ class AuthController extends Controller
                 'role' => $user->role,
                 'username' => $user->username, // Include username here
                 'step' => $user->step, // Include step here
+                'verified' => $user->hasVerifiedEmail(), // Add email verification status
             ];
 
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
@@ -94,6 +95,7 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'username' => $user->username, // Include username here
                     'step' => $user->step, // Include step here
+                    'verified' => $user->hasVerifiedEmail(), // Add email verification status
                 ];
 
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
@@ -273,6 +275,7 @@ public function checkToken(Request $request)
             'role' => $user->role,
             'username' => $user->username, // Include username here
             'step' => $user->step, // Include step here
+            'verified' => $user->hasVerifiedEmail(), // Add email verification status
         ];
 
         // Generate JWT token
