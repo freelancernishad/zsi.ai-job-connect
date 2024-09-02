@@ -40,6 +40,7 @@ class User extends Authenticatable implements JWTSubject
         'your_experience',
         'familiar_with_safety_protocols',
         'step',
+        'resume',
     ];
 
     /**
@@ -143,4 +144,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(EmploymentHistory::class);
     }
+
+
+    public function resumes()
+    {
+        return $this->hasMany(Resume::class);
+    }
+    
 }

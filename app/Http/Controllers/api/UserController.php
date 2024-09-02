@@ -71,6 +71,7 @@ class UserController extends Controller
              'employment_history.*.position' => 'required_with:employment_history|string|max:255',
              'employment_history.*.dates' => 'required_with:employment_history|string|max:255',
              'employment_history.*.responsibilities' => 'nullable|string',
+            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
          ]);
      
          if ($validator->fails()) {
@@ -94,6 +95,17 @@ class UserController extends Controller
      
          // Save the user
          $user->step = 2; // Set step value to 2
+
+
+
+    // Handle resume upload
+    if ($request->hasFile('resume')) {
+        $resumePath = $request->file('resume')->store('resumes', 'protected'); // Store resume in protected storage
+        $user->resume = $resumePath;
+    }
+
+
+
          $user->save();
      
          // Update related models: languages, certifications, skills, education, employment history, etc.

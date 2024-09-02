@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\RoleUserController;
+use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
@@ -43,6 +44,16 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     Route::post('/user/register/step2', [UserController::class, 'registerStep2']);
+
+
+
+    Route::get('/resumes', [ResumeController::class, 'index']);
+    Route::post('/resumes', [ResumeController::class, 'store']);
+    Route::get('/resumes/{id}', [ResumeController::class, 'show']);
+    Route::delete('/resumes/{id}', [ResumeController::class, 'destroy']);
+
+     Route::get('/authenticated/user/resumes', [ResumeController::class, 'getByAuthenticatedUser']);
+
 
 
 
