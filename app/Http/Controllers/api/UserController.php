@@ -21,7 +21,7 @@ class UserController extends Controller
     {
 
 
-        return $request->all();
+        
 
 
         // Get the authenticated user via JWT
@@ -42,7 +42,7 @@ class UserController extends Controller
                 Rule::unique('users')->ignore($user->id),
             ],
             'address' => 'nullable|string|max:255',
-            'date_of_birth' => 'nullable|date',
+            'date_of_birth' => 'nullable',
             'profile_picture' => 'nullable|string|max:255',
             'preferred_job_title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -69,15 +69,15 @@ class UserController extends Controller
             'education' => 'nullable|array',
             'education.*.school_name' => 'required_with:education|string|max:255',
             'education.*.qualifications' => 'required_with:education|string|max:255',
-            'education.*.start_date' => 'required_with:education|date',
-            'education.*.end_date' => 'nullable|date|after_or_equal:education.*.start_date',
+            'education.*.start_date' => 'required_with:education',
+            'education.*.end_date' => 'nullable|after_or_equal:education.*.start_date',
             'education.*.notes' => 'nullable|string',
 
             'employment_history' => 'nullable|array',
             'employment_history.*.company' => 'required_with:employment_history|string|max:255',
             'employment_history.*.position' => 'required_with:employment_history|string|max:255',
-            'employment_history.*.start_date' => 'required_with:employment_history|date',
-            'employment_history.*.end_date' => 'nullable|date|after_or_equal:employment_history.*.start_date',
+            'employment_history.*.start_date' => 'required_with:employment_history',
+            'employment_history.*.end_date' => 'nullable|after_or_equal:employment_history.*.start_date',
             'employment_history.*.responsibilities' => 'nullable|string',
             'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
         ]);
