@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('employment_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('company');
-            $table->string('position');
-            $table->date('start_date');
+            $table->string('company')->nullable();
+            $table->string('position')->nullable();
+            $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->text('primary_responsibilities');
+            $table->text('primary_responsibilities')->nullable();
             $table->timestamps();
         });
     }

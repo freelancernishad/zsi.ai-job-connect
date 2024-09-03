@@ -39,7 +39,7 @@ class UserController extends Controller
              'profile_picture' => 'nullable|string|max:255',
              'preferred_job_title' => 'nullable|string|max:255',
              'description' => 'nullable|string',
-             'years_of_experience_in_the_industry' => 'nullable|integer',
+             'years_of_experience_in_the_industry' => 'nullable|string',
              'preferred_work_state' => 'nullable|string|max:255',
              'preferred_work_zipcode' => 'nullable|string|max:10',
              'your_experience' => 'nullable|string',
