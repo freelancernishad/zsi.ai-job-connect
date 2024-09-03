@@ -43,7 +43,8 @@ class User extends Authenticatable implements JWTSubject
         'resume',
         'email_verification_hash',
         'status',
-        'activation_payment_made'
+        'activation_payment_made',
+        'email_verified_at', 
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at'
     ];
 
     /**
