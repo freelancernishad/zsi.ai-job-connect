@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
+
 function int_en_to_bn($number)
 {
 
@@ -61,4 +64,57 @@ function routeUsesMiddleware($route, $middlewareName)
     }
 
     return false;
+}
+
+
+
+ function createPayment($amount=1,$payment_method='cash',$type='activation')
+{
+
+    $user = Auth::user();
+
+    if($payment_method=='cash'){
+        $method ='cash';
+    }else{
+        $method ='online';
+
+    }
+
+        // Create a payment record
+        $payment = Payment::create([
+            'union' => 'initial', // Assuming user has a 'union' attribute
+            'trxId' => generateTransactionId(), // Implement this method to generate unique transaction IDs
+            'userid' => $user->id,
+            'type' => $type, // Set type from request
+            'amount' => $amount,
+            'applicant_mobile' => $user->phone_number,
+            'status' => 'pending',
+            'date' => now()->format('Y-m-d'),
+            'month' => now()->format('m'),
+            'year' => now()->format('Y'),
+            'paymentUrl' => 'initial',
+            'ipnResponse' => null,
+            'method' => $method, // Or any method you use
+            'payment_type' => 'initial',
+            'balance' => 0,
+            'payment_method' => $payment_method, // Default to 'cash' if not provided
+        ]);
+
+        // Update user step
+        // $user->activateUser();
+
+        return [
+            'success' => true,
+            'message' => 'Payment created',
+            'payment' => $payment,
+        ];
+
+
+
+}
+
+// Example method to generate unique transaction IDs
+ function generateTransactionId()
+{
+    return 'TRX-' . strtoupper(uniqid());
 }

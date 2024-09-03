@@ -41,7 +41,9 @@ class User extends Authenticatable implements JWTSubject
         'familiar_with_safety_protocols',
         'step',
         'resume',
-        'email_verification_hash'
+        'email_verification_hash',
+        'status',
+        'activation_payment_made'
     ];
 
     /**
@@ -150,6 +152,12 @@ class User extends Authenticatable implements JWTSubject
     public function resumes()
     {
         return $this->hasMany(Resume::class);
+    }
+
+
+    public function activateUser()
+    {
+        $this->update(['step' => 3, 'status' => 'active']);
     }
 
 }

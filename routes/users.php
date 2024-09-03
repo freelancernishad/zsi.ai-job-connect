@@ -52,6 +52,7 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     Route::post('/user/register/step2', [UserController::class, 'registerStep2']);
+    Route::post('/user/register/step3', [UserController::class, 'registerStep3']);
 
 
 

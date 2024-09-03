@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\admins\AdminAuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminUserController;
 
+use App\Http\Controllers\Auth\admins\AdminAuthController;
 use App\Http\Controllers\Backend\ServiceController as BackendServiceController;
 use App\Http\Controllers\Backend\SkillListController as BackendSkillListController;
 
@@ -35,5 +36,12 @@ Route::middleware('auth:admin')->group(function () {
     Route::delete('skill-lists/{id}', [BackendSkillListController::class, 'destroy']);
     Route::get('services/{serviceId}/skill-lists', [BackendSkillListController::class, 'listByService']);
 
+
+
+
+    Route::prefix('admin')->group(function () {
+        Route::get('users-with-pending-payments', [AdminUserController::class, 'getUsersWithPendingPayments']);
+        Route::post('approve-payment/{paymentId}', [AdminUserController::class, 'approvePayment']);
+    });
 
 });

@@ -21,9 +21,6 @@ class UserController extends Controller
     {
 
 
-
-
-
         // Get the authenticated user via JWT
         $user = auth()->user();
 
@@ -185,6 +182,58 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User registration completed'], 200);
     }
+
+
+    public function registerStep3()
+    {
+        $user = Auth::user();
+
+        // Check if user status is inactive
+        if ($user->status === 'inactive') {
+            // Check user step
+            if ($user->step === 2) {
+                // Check if payment has already been made
+                if ($user->activation_payment_made) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Payment for activation has already been made.Contact with Admin',
+                    ], 400);
+                }
+
+                // Call the createPayment method and pass the amount
+                $paymentResponse = createPayment(100);
+
+
+                // Check if payment creation was successful
+                if ($paymentResponse['success']) {
+                    // Update user to indicate that payment has been made
+                    $user->update(['activation_payment_made' => true]);
+                    return $paymentResponse;
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Payment creation failed.',
+                    ], 500);
+                }
+            } elseif ($user->step === 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User needs to complete step 2 before proceeding to payment.',
+                ], 400);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User is in an unexpected state.',
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is already active.',
+            ], 400);
+        }
+    }
+
 
 
     // User delete

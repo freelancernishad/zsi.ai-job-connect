@@ -24,5 +24,13 @@ class Payment extends Model
         'method',
         'payment_type',
         'balance',
+        
     ];
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userid');
+    }
+
 }
