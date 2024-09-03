@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\api;
+
 use App\Http\Controllers\Controller;
 
 use Carbon\Carbon;
@@ -14,197 +15,209 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-     // User update
-     public function registerStep2(Request $request)
-     {
-         // Get the authenticated user via JWT
-         $user = auth()->user();
+    // User update
 
-         // Check if user exists
-         if (!$user) {
-             return response()->json(['message' => 'User not found'], 404);
-         }
+    public function registerStep2(Request $request)
+    {
+        // Get the authenticated user via JWT
+        $user = auth()->user();
 
-         $validator = Validator::make($request->all(), [
-             'first_name' => 'nullable|string|max:255',
-             'last_name' => 'nullable|string|max:255',
-             'phone_number' => [
-                 'nullable',
-                 'string',
-                 'max:15',
-                 Rule::unique('users')->ignore($user->id),
-             ],
-             'address' => 'nullable|string|max:255',
-             'date_of_birth' => 'nullable|date',
-             'profile_picture' => 'nullable|string|max:255',
-             'preferred_job_title' => 'nullable|string|max:255',
-             'description' => 'nullable|string',
-             'years_of_experience_in_the_industry' => 'nullable|string',
-             'preferred_work_state' => 'nullable|string|max:255',
-             'preferred_work_zipcode' => 'nullable|string|max:10',
-             'your_experience' => 'nullable|string',
-             'familiar_with_safety_protocols' => 'nullable|boolean',
+        // Check if user exists
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
-             // Validation for related models
-             'languages' => 'nullable|array',
-             'languages.*.language' => 'required_with:languages|string|max:255',
-             'languages.*.level' => 'required_with:languages|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'phone_number' => [
+                'nullable',
+                'string',
+                'max:15',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'address' => 'nullable|string|max:255',
+            'date_of_birth' => 'nullable|date',
+            'profile_picture' => 'nullable|string|max:255',
+            'preferred_job_title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'years_of_experience_in_the_industry' => 'nullable|string',
+            'preferred_work_state' => 'nullable|string|max:255',
+            'preferred_work_zipcode' => 'nullable|string|max:10',
+            'your_experience' => 'nullable|string',
+            'familiar_with_safety_protocols' => 'nullable|boolean',
 
-             'certifications' => 'nullable|array',
-             'certifications.*.name' => 'required_with:certifications|string|max:255',
-             'certifications.*.certified_from' => 'required_with:certifications|string|max:255',
-             'certifications.*.year' => 'required_with:certifications|integer|digits:4',
+            // Validation for related models
+            'languages' => 'nullable|array',
+            'languages.*.language' => 'required_with:languages|string|max:255',
+            'languages.*.level' => 'required_with:languages|string|max:255',
 
-             'skills' => 'nullable|array',
-             'skills.*.name' => 'required_with:skills|string|max:255',
-             'skills.*.level' => 'required_with:skills|string|max:255',
+            'certifications' => 'nullable|array',
+            'certifications.*.name' => 'required_with:certifications|string|max:255',
+            'certifications.*.certified_from' => 'required_with:certifications|string|max:255',
+            'certifications.*.year' => 'required_with:certifications|integer|digits:4',
 
-             'education' => 'nullable|array',
-             'education.*.school_name' => 'required_with:education|string|max:255',
-             'education.*.qualifications' => 'required_with:education|string|max:255',
-             'education.*.start_date' => 'required_with:education|date',
-             'education.*.end_date' => 'nullable|date|after_or_equal:education.*.start_date',
-             'education.*.notes' => 'nullable|string',
+            'skills' => 'nullable|array',
+            'skills.*.name' => 'required_with:skills|string|max:255',
+            'skills.*.level' => 'required_with:skills|string|max:255',
 
-             'employment_history' => 'nullable|array',
-             'employment_history.*.company' => 'required_with:employment_history|string|max:255',
-             'employment_history.*.position' => 'required_with:employment_history|string|max:255',
+            'education' => 'nullable|array',
+            'education.*.school_name' => 'required_with:education|string|max:255',
+            'education.*.qualifications' => 'required_with:education|string|max:255',
+            'education.*.start_date' => 'required_with:education|date',
+            'education.*.end_date' => 'nullable|date|after_or_equal:education.*.start_date',
+            'education.*.notes' => 'nullable|string',
 
-             'employment_history.*.start_date' => 'required_with:employment_history|string|max:255',
-             'employment_history.*.end_date' => 'required_with:employment_history|string|max:255',
-
-             'employment_history.*.responsibilities' => 'nullable|string',
+            'employment_history' => 'nullable|array',
+            'employment_history.*.company' => 'required_with:employment_history|string|max:255',
+            'employment_history.*.position' => 'required_with:employment_history|string|max:255',
+            'employment_history.*.start_date' => 'required_with:employment_history|date',
+            'employment_history.*.end_date' => 'nullable|date|after_or_equal:employment_history.*.start_date',
+            'employment_history.*.responsibilities' => 'nullable|string',
             'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
-         ]);
+        ]);
 
-         if ($validator->fails()) {
-             return response()->json(['errors' => $validator->errors()], 400);
-         }
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
-         // Update the user's fields
-         $user->first_name = $request->first_name ?? $user->first_name;
-         $user->last_name = $request->last_name ?? $user->last_name;
-         $user->phone_number = $request->phone_number ?? $user->phone_number;
-         $user->address = $request->address ?? $user->address;
-         $user->date_of_birth = $request->date_of_birth ?? $user->date_of_birth;
-         $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
-         $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
-         $user->description = $request->description ?? $user->description;
-         $user->years_of_experience_in_the_industry = $request->years_of_experience_in_the_industry ?? $user->years_of_experience_in_the_industry;
-         $user->preferred_work_state = $request->preferred_work_state ?? $user->preferred_work_state;
-         $user->preferred_work_zipcode = $request->preferred_work_zipcode ?? $user->preferred_work_zipcode;
-         $user->your_experience = $request->your_experience ?? $user->your_experience;
-         $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols ?? $user->familiar_with_safety_protocols;
+        // Format date fields
+        $dateFields = [
+            'date_of_birth',
+            'education.*.start_date',
+            'education.*.end_date',
+            'employment_history.*.start_date',
+            'employment_history.*.end_date'
+        ];
 
-         // Save the user
-         $user->step = 2; // Set step value to 2
+        foreach ($dateFields as $field) {
+            if ($request->has($field)) {
+                $dates = $request->input($field);
+                // Handle array of dates if necessary
+                if (is_array($dates)) {
+                    foreach ($dates as $key => $date) {
+                        $dates[$key] = Carbon::parse($date)->format('Y-m-d');
+                    }
+                    $request->merge([$field => $dates]);
+                } else {
+                    $request->merge([$field => Carbon::parse($dates)->format('Y-m-d')]);
+                }
+            }
+        }
 
+        // Update the user's fields
+        $user->first_name = $request->first_name ?? $user->first_name;
+        $user->last_name = $request->last_name ?? $user->last_name;
+        $user->phone_number = $request->phone_number ?? $user->phone_number;
+        $user->address = $request->address ?? $user->address;
+        $user->date_of_birth = $request->date_of_birth ?? $user->date_of_birth;
+        $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
+        $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
+        $user->description = $request->description ?? $user->description;
+        $user->years_of_experience_in_the_industry = $request->years_of_experience_in_the_industry ?? $user->years_of_experience_in_the_industry;
+        $user->preferred_work_state = $request->preferred_work_state ?? $user->preferred_work_state;
+        $user->preferred_work_zipcode = $request->preferred_work_zipcode ?? $user->preferred_work_zipcode;
+        $user->your_experience = $request->your_experience ?? $user->your_experience;
+        $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols ?? $user->familiar_with_safety_protocols;
 
+        // Save the user
+        $user->step = 2; // Set step value to 2
 
-    // Handle resume upload
-    if ($request->hasFile('resume')) {
-        $resumePath = $request->file('resume')->store('resumes', 'protected'); // Store resume in protected storage
-        $user->resume = $resumePath;
+        // Handle resume upload
+        if ($request->hasFile('resume')) {
+            $resumePath = $request->file('resume')->store('resumes', 'protected'); // Store resume in protected storage
+            $user->resume = $resumePath;
+        }
+
+        $user->save();
+
+        // Update related models: languages, certifications, skills, education, etc.
+        if ($request->has('languages')) {
+            foreach ($request->languages as $languageData) {
+                $language = $user->languages()->updateOrCreate(
+                    ['id' => $languageData['id'] ?? null],
+                    [
+                        'language' => $languageData['language'],
+                        'level' => $languageData['level'],
+                    ]
+                );
+            }
+        }
+
+        if ($request->has('certifications')) {
+            foreach ($request->certifications as $certificationData) {
+                $certification = $user->certifications()->updateOrCreate(
+                    ['id' => $certificationData['id'] ?? null],
+                    [
+                        'name' => $certificationData['name'],
+                        'certified_from' => $certificationData['certified_from'],
+                        'year' => $certificationData['year'],
+                    ]
+                );
+            }
+        }
+
+        if ($request->has('skills')) {
+            foreach ($request->skills as $skillData) {
+                $skill = $user->skills()->updateOrCreate(
+                    ['id' => $skillData['id'] ?? null],
+                    [
+                        'name' => $skillData['name'],
+                        'level' => $skillData['level'],
+                    ]
+                );
+            }
+        }
+
+        if ($request->has('education')) {
+            foreach ($request->education as $educationData) {
+                $education = $user->education()->updateOrCreate(
+                    ['id' => $educationData['id'] ?? null],
+                    [
+                        'school_name' => $educationData['school_name'],
+                        'qualifications' => $educationData['qualifications'],
+                        'start_date' => $educationData['start_date'],
+                        'end_date' => $educationData['end_date'],
+                        'notes' => $educationData['notes'],
+                    ]
+                );
+            }
+        }
+
+        if ($request->has('employment_history')) {
+            foreach ($request->employment_history as $employmentData) {
+                $employment = $user->employmentHistory()->updateOrCreate(
+                    ['id' => $employmentData['id'] ?? null],
+                    [
+                        'company' => $employmentData['company'],
+                        'position' => $employmentData['position'],
+                        'start_date' => $employmentData['start_date'],
+                        'end_date' => $employmentData['end_date'],
+                        'responsibilities' => $employmentData['responsibilities'],
+                    ]
+                );
+            }
+        }
+
+        return response()->json(['message' => 'User registration completed'], 200);
     }
 
 
+    // User delete
+    public function delete($id)
+    {
+        $user = User::find($id);
 
-         $user->save();
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
-         // Update related models: languages, certifications, skills, education, employment history, etc.
-         // Ensure you are handling the request data and models properly
+        $user->delete();
 
-         if ($request->has('languages')) {
-             // Update user's languages
-             foreach ($request->languages as $languageData) {
-                 $language = $user->languages()->updateOrCreate(
-                     ['id' => $languageData['id'] ?? null], // Identify by ID if exists
-                     [
-                         'language' => $languageData['language'],
-                         'level' => $languageData['level'],
-                     ]
-                 );
-             }
-         }
+        return response()->json(['message' => 'User deleted successfully'], 200);
+    }
 
-         if ($request->has('certifications')) {
-             // Update user's certifications
-             foreach ($request->certifications as $certificationData) {
-                 $certification = $user->certifications()->updateOrCreate(
-                     ['id' => $certificationData['id'] ?? null],
-                     [
-                         'name' => $certificationData['name'],
-                         'certified_from' => $certificationData['certified_from'],
-                         'year' => $certificationData['year'],
-                     ]
-                 );
-             }
-         }
-
-         if ($request->has('skills')) {
-             // Update user's skills
-             foreach ($request->skills as $skillData) {
-                 $skill = $user->skills()->updateOrCreate(
-                     ['id' => $skillData['id'] ?? null],
-                     [
-                         'name' => $skillData['name'],
-                         'level' => $skillData['level'],
-                     ]
-                 );
-             }
-         }
-
-         if ($request->has('education')) {
-             // Update user's education
-             foreach ($request->education as $educationData) {
-                 $education = $user->education()->updateOrCreate(
-                     ['id' => $educationData['id'] ?? null],
-                     [
-                         'school_name' => $educationData['school_name'],
-                         'qualifications' => $educationData['qualifications'],
-                         'start_date' => $educationData['start_date'],
-                         'end_date' => $educationData['end_date'],
-                         'notes' => $educationData['notes'],
-                     ]
-                 );
-             }
-         }
-
-         if ($request->has('employment_history')) {
-             // Update user's employment history
-             foreach ($request->employment_history as $employmentData) {
-                 $employment = $user->employmentHistory()->updateOrCreate(
-                     ['id' => $employmentData['id'] ?? null],
-                     [
-                         'company' => $employmentData['company'],
-                         'position' => $employmentData['position'],
-                         'start_date' => $employmentData['start_date'],
-                         'end_date' => $employmentData['end_date'],
-                         'responsibilities' => $employmentData['responsibilities'],
-                     ]
-                 );
-             }
-         }
-
-         return response()->json(['message' => 'User registration completed'], 200);
-     }
-
-
-     // User delete
-     public function delete($id)
-     {
-         $user = User::find($id);
-
-         if (!$user) {
-             return response()->json(['message' => 'User not found'], 404);
-         }
-
-         $user->delete();
-
-         return response()->json(['message' => 'User deleted successfully'], 200);
-     }
-
-     // Show user details
+    // Show user details
 
 
 
