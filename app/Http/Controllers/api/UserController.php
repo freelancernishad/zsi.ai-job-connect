@@ -21,7 +21,7 @@ class UserController extends Controller
     {
 
 
-        
+
 
 
         // Get the authenticated user via JWT
@@ -94,7 +94,7 @@ class UserController extends Controller
         $user->last_name = $request->last_name ?? $user->last_name;
         $user->phone_number = $request->phone_number ?? $user->phone_number;
         $user->address = $request->address ?? $user->address;
-        $user->date_of_birth = date("d-m-Y", strtotime($request->date_of_birth)) ?? date("d-m-Y", strtotime($user->date_of_birth));
+        $user->date_of_birth = date("Y-m-d", strtotime($request->date_of_birth)) ?? date("Y-m-d", strtotime($user->date_of_birth));
         $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
         $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
         $user->description = $request->description ?? $user->description;
@@ -160,8 +160,8 @@ class UserController extends Controller
                     [
                         'school_name' => $educationData['school_name'],
                         'qualifications' => $educationData['qualifications'],
-                        'start_date' => date("d-m-Y", strtotime($educationData['start_date'])),
-                        'end_date' => date("d-m-Y", strtotime($educationData['end_date'])),
+                        'start_date' => date("Y-m-d", strtotime($educationData['start_date'])),
+                        'end_date' => date("Y-m-d", strtotime($educationData['end_date'])),
                         'notes' => $educationData['notes'],
                     ]
                 );
@@ -175,8 +175,8 @@ class UserController extends Controller
                     [
                         'company' => $employmentData['company'],
                         'position' => $employmentData['position'],
-                        'start_date' => date("d-m-Y", strtotime($employmentData['start_date'])),
-                        'end_date' => date("d-m-Y", strtotime($employmentData['end_date'])),
+                        'start_date' => date("Y-m-d", strtotime($employmentData['start_date'])),
+                        'end_date' => date("Y-m-d", strtotime($employmentData['end_date'])),
                         'responsibilities' => $employmentData['responsibilities'],
                     ]
                 );
