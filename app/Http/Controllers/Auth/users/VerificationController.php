@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class VerificationController extends Controller
 {
+
     public function verifyEmail(Request $request, $hash)
     {
         // Find the user by the hash
@@ -19,14 +20,43 @@ class VerificationController extends Controller
             return response()->json(['error' => 'Invalid or expired verification link.'], 400);
         }
 
+        // Check if the email is already verified
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified.'], 200);
+            // Generate a new token for the user
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json([
+                'message' => 'Email already verified.',
+                'user' => [
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'username' => $user->username,
+                    'step' => $user->step,
+                    'verified' => true, // Email was already verified
+                ],
+                'token' => $token // Return the new token
+            ], 200);
         }
 
-        // Verify the user's email
+        // If not verified, verify the user's email
         $user->markEmailAsVerified();
 
-        return response()->json(['message' => 'Email verified successfully.'], 200);
+        // Generate a new token for the user after verification
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'message' => 'Email verified successfully.',
+            'user' => [
+                'email' => $user->email,
+                'role' => $user->role,
+                'username' => $user->username,
+                'step' => $user->step,
+                'verified' => true, // Email is now verified
+            ],
+            'token' => $token // Return the new token
+        ], 200);
     }
+
+
 
 }
