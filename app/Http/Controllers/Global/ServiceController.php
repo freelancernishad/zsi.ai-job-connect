@@ -11,16 +11,31 @@ class ServiceController extends Controller
     // Get all services
     public function index()
     {
-        return response()->json(Service::all());
+        $services = Service::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully retrieved the list of all services.',
+            'data' => $services
+        ], 200);
     }
 
     // Get a single service by ID
     public function show($id)
     {
         $service = Service::find($id);
+
         if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found. Please check the ID and try again.'
+            ], 404);
         }
-        return response()->json($service);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully retrieved the service details.',
+            'data' => $service
+        ], 200);
     }
 }

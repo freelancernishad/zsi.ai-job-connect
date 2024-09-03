@@ -11,7 +11,12 @@ class SkillListController extends Controller
     // Get all skill lists
     public function index()
     {
-        return response()->json(SkillList::all());
+        $skillLists = SkillList::all();
+        return response()->json([
+            'success' => true,
+            'message' => 'Retrieved all skill lists successfully.',
+            'data' => $skillLists
+        ]);
     }
 
     // Get a single skill list by ID
@@ -19,9 +24,16 @@ class SkillListController extends Controller
     {
         $skillList = SkillList::find($id);
         if (!$skillList) {
-            return response()->json(['message' => 'SkillList not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'SkillList not found.'
+            ], 404);
         }
-        return response()->json($skillList);
+        return response()->json([
+            'success' => true,
+            'message' => 'SkillList retrieved successfully.',
+            'data' => $skillList
+        ]);
     }
 
     // Create a new skill list
@@ -33,7 +45,11 @@ class SkillListController extends Controller
         ]);
 
         $skillList = SkillList::create($request->all());
-        return response()->json($skillList, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'SkillList created successfully.',
+            'data' => $skillList
+        ], 201);
     }
 
     // Update an existing skill list
@@ -41,7 +57,10 @@ class SkillListController extends Controller
     {
         $skillList = SkillList::find($id);
         if (!$skillList) {
-            return response()->json(['message' => 'SkillList not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'SkillList not found.'
+            ], 404);
         }
 
         $request->validate([
@@ -50,7 +69,11 @@ class SkillListController extends Controller
         ]);
 
         $skillList->update($request->all());
-        return response()->json($skillList);
+        return response()->json([
+            'success' => true,
+            'message' => 'SkillList updated successfully.',
+            'data' => $skillList
+        ]);
     }
 
     // Delete a skill list
@@ -58,18 +81,27 @@ class SkillListController extends Controller
     {
         $skillList = SkillList::find($id);
         if (!$skillList) {
-            return response()->json(['message' => 'SkillList not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'SkillList not found.'
+            ], 404);
         }
 
         $skillList->delete();
-        return response()->json(['message' => 'SkillList deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'SkillList deleted successfully.'
+        ]);
     }
 
     // List skill lists by service ID
     public function listByService($serviceId)
     {
         $skillLists = SkillList::where('service_id', $serviceId)->get();
-        return response()->json($skillLists);
+        return response()->json([
+            'success' => true,
+            'message' => 'SkillLists retrieved successfully for the given service.',
+            'data' => $skillLists
+        ]);
     }
 }
-

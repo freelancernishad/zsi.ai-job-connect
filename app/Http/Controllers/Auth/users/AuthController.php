@@ -37,7 +37,10 @@ class AuthController extends Controller
             ]);
 
             if ($response->failed()) {
-                return response()->json(['error' => 'Invalid access token'], 400);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Invalid access token.',
+                ], 400);
             }
 
             $userData = $response->json();
@@ -69,7 +72,12 @@ class AuthController extends Controller
             ];
 
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-            return response()->json(['token' => $token, 'user' => $payload], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Authentication successful.',
+                'token' => $token,
+                'user' => $payload,
+            ], 200);
         } else {
             // Validate email and password
             $validator = Validator::make($request->all(), [
@@ -99,10 +107,19 @@ class AuthController extends Controller
                 ];
 
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-                return response()->json(['token' => $token, 'user' => $payload], 200);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Authentication successful.',
+                    'token' => $token,
+                    'user' => $payload,
+                ], 200);
             }
 
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials. Please check your username and password.',
+            ], 401);
+
         }
     }
     public function resendVerificationLink(Request $request)
@@ -123,7 +140,10 @@ class AuthController extends Controller
 
         // Check if the user exists and if the email is not already verified
         if (!$user || $user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email is either already verified or user does not exist.'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'The email is either already verified or the user does not exist.',
+            ], 400);
         }
 
         // Generate a new verification token
@@ -137,7 +157,11 @@ class AuthController extends Controller
         // Resend the verification email
         $user->notify(new VerifyEmail($user, $verify_url));
 
-        return response()->json(['message' => 'Verification link has been sent.'], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification link has been sent to your email address.',
+        ], 200);
+
     }
 
 
@@ -180,25 +204,51 @@ public function checkTokenExpiration(Request $request)
     // You can use $permissions as needed
 
         // $user = JWTAuth::setToken($token)->authenticate();
-        return response()->json(['message' => 'Token is valid', 'user' => $user ], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Token is valid.',
+            'user' => $user
+        ], 200);
+
     } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
         // Token has expired
-        return response()->json(['message' => 'Token has expired'], 401);
+        return response()->json([
+            'success' => false,
+            'message' => 'Token has expired. Please log in again.'
+        ], 401);
+
     } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
         // Token is invalid
-        return response()->json(['message' => 'Invalid token'], 401);
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid token. Please check your authentication details and try again.'
+        ], 401);
+
     } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
         // Token not found or other JWT exception
-        return response()->json(['message' => 'Error while processing token'], 500);
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while processing the token. Please try again later.'
+        ], 500);
+
     }
 }
 public function checkToken(Request $request)
 {
     $user = $request->user('web');
     if ($user) {
-        return response()->json(['message' => 'Token is valid']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Token is valid',
+            'user' => $user // Optionally include user details if relevant
+        ], 200);
+
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized access'
+        ], 401);
+
     }
 }
     public function logout(Request $request)
@@ -207,12 +257,24 @@ public function checkToken(Request $request)
             $token = $request->bearerToken();
             if ($token) {
                 JWTAuth::setToken($token)->invalidate();
-                return response()->json(['message' => 'Logged out successfully'], 200);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Logged out successfully'
+                ], 200);
+
             } else {
-                return response()->json(['message' => 'Invalid token'], 401);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid token'
+                ], 401);
+
             }
         } catch (JWTException $e) {
-            return response()->json(['message' => 'Error while processing token'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error while processing token'
+            ], 500);
+
         }
     }
 
@@ -236,7 +298,11 @@ public function checkToken(Request $request)
             ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
             if ($response->failed()) {
-                return response()->json(['error' => 'Invalid access token'], 400);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid access token'
+                ], 400);
+
             }
 
             $userData = $response->json();
@@ -244,7 +310,11 @@ public function checkToken(Request $request)
             // Check if the email already exists
             $existingUser = User::where('email', $userData['email'])->first();
             if ($existingUser) {
-                return response()->json(['error' => 'Email already registered'], 400);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email already registered'
+                ], 400);
+
             }
 
             // Extract username from email
@@ -315,7 +385,13 @@ public function checkToken(Request $request)
         $token = JWTAuth::fromUser($user);
 
         // Return the response with token and user data
-        return response()->json(['token' => $token, 'user' => $payload], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Authentication successful. Token and user data returned.',
+            'token' => $token,
+            'user' => $payload
+        ], 201);
+
     }
 
 
@@ -339,11 +415,19 @@ public function checkToken(Request $request)
             }
             $user = Auth::guard('web')->user();
              if (!Hash::check($request->current_password, $user->password)) {
-                return response()->json(['message' => 'Current password is incorrect.'], 400);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The current password you entered is incorrect. Please try again.'
+                ], 400);
+
              }
              $user->password = Hash::make($request->new_password);
              $user->save();
-             return response()->json(['message' => 'Password changed successfully.'], 200);
+             return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully.'
+            ], 200);
+
          }
 
 

@@ -20,6 +20,8 @@ class ResumeController extends Controller
         $resumes = $user->resumes;
 
         return response()->json([
+            'success' => true,
+            'message' => 'Resumes retrieved successfully.',
             'resumes' => $resumes,
         ], 200);
     }
@@ -48,7 +50,8 @@ class ResumeController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Resume uploaded successfully',
+            'success' => true,
+            'message' => 'Resume uploaded successfully.',
             'resume' => $resume,
         ], 201);
     }
@@ -80,7 +83,8 @@ class ResumeController extends Controller
         $resume->delete();
 
         return response()->json([
-            'message' => 'Resume deleted successfully',
+            'success' => true,
+            'message' => 'Resume deleted successfully.',
         ], 200);
     }
 
@@ -98,8 +102,11 @@ class ResumeController extends Controller
         $resumes = Resume::where('user_id', $authenticatedUser->id)->get();
 
         return response()->json([
+            'success' => true,
+            'message' => 'Resumes retrieved successfully.',
             'resumes' => $resumes,
         ], 200);
+        
     }
 
 

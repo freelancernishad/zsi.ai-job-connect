@@ -18,7 +18,11 @@ class VerificationController extends Controller
         $user = User::where('email_verification_hash', $hash)->first();
 
         if (!$user) {
-            return response()->json(['error' => 'Invalid or expired verification link.'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification link.',
+            ], 400);
+
         }
 
         // Check if the email is already verified
@@ -27,16 +31,18 @@ class VerificationController extends Controller
             $token = JWTAuth::fromUser($user);
 
             return response()->json([
-                'message' => 'Email already verified.',
+                'success' => true,
+                'message' => 'Email has already been verified.',
                 'user' => [
                     'email' => $user->email,
                     'role' => $user->role,
                     'username' => $user->username,
                     'step' => $user->step,
-                    'verified' => true, // Email is now verified
+                    'verified' => true, // Email is verified
                 ],
                 'token' => $token // Return the new token
             ], 200);
+
         }
 
         // If not verified, verify the user's email
@@ -46,6 +52,7 @@ class VerificationController extends Controller
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
+            'success' => true,
             'message' => 'Email verified successfully.',
             'user' => [
                 'email' => $user->email,
@@ -56,6 +63,7 @@ class VerificationController extends Controller
             ],
             'token' => $token // Return the new token
         ], 200);
+
     }
 
 

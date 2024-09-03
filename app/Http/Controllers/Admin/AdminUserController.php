@@ -29,6 +29,7 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Users with pending payments retrieved successfully.',
             'users_with_pending_payments' => $users,
         ]);
     }
@@ -46,14 +47,14 @@ class AdminUserController extends Controller
         if (!$payment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Payment not found.',
+                'message' => 'The specified payment could not be found. Please check the payment ID and try again.',
             ], 404);
         }
 
         if ($payment->status !== 'pending') {
             return response()->json([
                 'success' => false,
-                'message' => 'Payment is not in pending status.',
+                'message' => 'The payment is not currently in a pending status. Please check the payment status and try again.',
             ], 400);
         }
 
@@ -71,7 +72,8 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Payment approved and user activated successfully.',
+            'message' => 'Payment has been approved, and the user has been activated successfully.',
         ]);
+
     }
 }

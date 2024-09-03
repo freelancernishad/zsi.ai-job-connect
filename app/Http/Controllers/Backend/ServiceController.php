@@ -11,7 +11,12 @@ class ServiceController extends Controller
     // Get all services
     public function index()
     {
-        return response()->json(Service::all());
+        return response()->json([
+            'success' => true,
+            'message' => 'Services retrieved successfully.',
+            'data' => Service::all()
+        ], 200);
+
     }
 
     // Get a single service by ID
@@ -19,9 +24,17 @@ class ServiceController extends Controller
     {
         $service = Service::find($id);
         if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'The requested service could not be found.'
+            ], 404);
         }
-        return response()->json($service);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service details retrieved successfully.',
+            'data' => $service
+        ], 200);
+
     }
 
     // Create a new service
@@ -33,7 +46,12 @@ class ServiceController extends Controller
         ]);
 
         $service = Service::create($request->all());
-        return response()->json($service, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service created successfully.',
+            'service' => $service
+        ], 201);
+
     }
 
     // Update an existing service
@@ -50,7 +68,12 @@ class ServiceController extends Controller
         ]);
 
         $service->update($request->all());
-        return response()->json($service);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service retrieved successfully.',
+            'service' => $service
+        ], 200);
+
     }
 
     // Delete a service
@@ -58,11 +81,19 @@ class ServiceController extends Controller
     {
         $service = Service::find($id);
         if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found.',
+            ], 404);
+
         }
 
         $service->delete();
-        return response()->json(['message' => 'Service deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Service deleted successfully.',
+        ], 200);
+
     }
 }
 

@@ -19,16 +19,24 @@ class UserController extends Controller
 
     public function registerStep2(Request $request)
     {
-
-
         // Get the authenticated user via JWT
         $user = auth()->user();
 
         // Check if user exists
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+        return response()->json([
+            'success' => false,
+            'message' => 'The user you are trying to access does not exist. Please check the user ID and try again.',
+        ], 404);
+
+        // Check if the user's email is verified
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your email address is not verified. Please verify your email before proceeding.',
+            ], 403);
         }
 
+        // Validate the request data
         $validator = Validator::make($request->all(), [
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
@@ -83,9 +91,6 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-
-
-
         // Update the user's fields
         $user->first_name = $request->first_name ?? $user->first_name;
         $user->last_name = $request->last_name ?? $user->last_name;
@@ -101,15 +106,16 @@ class UserController extends Controller
         $user->your_experience = $request->your_experience ?? $user->your_experience;
         $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols ?? $user->familiar_with_safety_protocols;
 
-        // Save the user
-        $user->step = 2; // Set step value to 2
-
         // Handle resume upload
         if ($request->hasFile('resume')) {
             $resumePath = $request->file('resume')->store('resumes', 'protected'); // Store resume in protected storage
             $user->resume = $resumePath;
         }
 
+        // Update step
+        $user->step = 2; // Set step value to 2
+
+        // Save the user
         $user->save();
 
         // Update related models: languages, certifications, skills, education, etc.
@@ -180,8 +186,12 @@ class UserController extends Controller
             }
         }
 
-        return response()->json(['message' => 'User registration completed'], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration completed successfully. You can now proceed to the next step.',
+        ], 200);
     }
+
 
 
     public function registerStep3()
@@ -196,7 +206,7 @@ class UserController extends Controller
                 if ($user->activation_payment_made) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Payment for activation has already been made.Contact with Admin',
+                        'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
                     ], 400);
                 }
 
@@ -212,24 +222,24 @@ class UserController extends Controller
                 } else {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Payment creation failed.',
+                        'message' => 'There was an issue creating the payment. Please try again later or contact support if the problem persists.',
                     ], 500);
                 }
             } elseif ($user->step === 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User needs to complete step 2 before proceeding to payment.',
+                    'message' => 'Please complete Step 2 before proceeding to the payment process.',
                 ], 400);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User is in an unexpected state.',
+                    'message' => 'The user is in an unexpected state. Please contact support for assistance.',
                 ], 400);
             }
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'User is already active.',
+                'message' => 'The user is already active and does not need to complete this step again.',
             ], 400);
         }
     }
@@ -242,12 +252,18 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'The requested user could not be found. Please verify the user ID and try again.',
+            ], 404);
         }
 
         $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully'], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'The user has been successfully deleted.',
+        ], 200);
     }
 
     // Show user details
