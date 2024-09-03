@@ -81,36 +81,15 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        // Format date fields
-        $dateFields = [
-            'date_of_birth',
-            'education.*.start_date',
-            'education.*.end_date',
-            'employment_history.*.start_date',
-            'employment_history.*.end_date'
-        ];
 
-        foreach ($dateFields as $field) {
-            if ($request->has($field)) {
-                $dates = $request->input($field);
-                // Handle array of dates if necessary
-                if (is_array($dates)) {
-                    foreach ($dates as $key => $date) {
-                        $dates[$key] = Carbon::parse($date)->format('Y-m-d');
-                    }
-                    $request->merge([$field => $dates]);
-                } else {
-                    $request->merge([$field => Carbon::parse($dates)->format('Y-m-d')]);
-                }
-            }
-        }
+
 
         // Update the user's fields
         $user->first_name = $request->first_name ?? $user->first_name;
         $user->last_name = $request->last_name ?? $user->last_name;
         $user->phone_number = $request->phone_number ?? $user->phone_number;
         $user->address = $request->address ?? $user->address;
-        $user->date_of_birth = $request->date_of_birth ?? $user->date_of_birth;
+        $user->date_of_birth = date("d-m-Y", strtotime($request->date_of_birth)) ?? date("d-m-Y", strtotime($user->date_of_birth));
         $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
         $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
         $user->description = $request->description ?? $user->description;
@@ -176,8 +155,8 @@ class UserController extends Controller
                     [
                         'school_name' => $educationData['school_name'],
                         'qualifications' => $educationData['qualifications'],
-                        'start_date' => $educationData['start_date'],
-                        'end_date' => $educationData['end_date'],
+                        'start_date' => date("d-m-Y", strtotime($educationData['start_date'])),
+                        'end_date' => date("d-m-Y", strtotime($educationData['end_date'])),
                         'notes' => $educationData['notes'],
                     ]
                 );
@@ -191,8 +170,8 @@ class UserController extends Controller
                     [
                         'company' => $employmentData['company'],
                         'position' => $employmentData['position'],
-                        'start_date' => $employmentData['start_date'],
-                        'end_date' => $employmentData['end_date'],
+                        'start_date' => date("d-m-Y", strtotime($employmentData['start_date'])),
+                        'end_date' => date("d-m-Y", strtotime($employmentData['end_date'])),
                         'responsibilities' => $employmentData['responsibilities'],
                     ]
                 );
