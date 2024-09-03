@@ -22,11 +22,14 @@ class UserController extends Controller
         // Get the authenticated user via JWT
         $user = auth()->user();
 
-        // Check if user exists
-        return response()->json([
-            'success' => false,
-            'message' => 'The user you are trying to access does not exist. Please check the user ID and try again.',
-        ], 404);
+
+        // Check if the user exists
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The user you are trying to access does not exist. Please check the user ID and try again.',
+            ], 404);
+        }
 
         // Check if the user's email is verified
         if (!$user->hasVerifiedEmail()) {
