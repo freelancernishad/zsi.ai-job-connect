@@ -33,7 +33,7 @@ class VerificationController extends Controller
                     'role' => $user->role,
                     'username' => $user->username,
                     'step' => $user->step,
-                    'verified' => true, // Email was already verified
+                    'verified' => true, // Email is now verified
                 ],
                 'token' => $token // Return the new token
             ], 200);
