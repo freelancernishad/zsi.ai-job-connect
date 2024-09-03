@@ -56,6 +56,7 @@ class AuthController extends Controller
                     'password' => Hash::make(Str::random(16)), // Generate a random password
                     'role' => $request->role,
                     'step' => 1, // Set step value to 1
+                    'email_verified_at' => now(), // Automatically verify email
                 ]);
             }
 
