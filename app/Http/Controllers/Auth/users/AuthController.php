@@ -327,6 +327,7 @@ public function checkToken(Request $request)
                 'password' => Hash::make(Str::random(16)), // Generate a random password since it's not provided
                 'role' => $request->role,
                 'step' => 1, // Set step value to 1
+                'email_verified_at' => now(),
             ]);
 
             $user->save();
