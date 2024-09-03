@@ -19,6 +19,11 @@ class UserController extends Controller
 
     public function registerStep2(Request $request)
     {
+
+
+        return $request->all();
+
+
         // Get the authenticated user via JWT
         $user = auth()->user();
 
