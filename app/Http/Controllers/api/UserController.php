@@ -200,7 +200,7 @@ class UserController extends Controller
     public function registerStep3()
     {
         $user = Auth::user();
-
+    
         // Check if user status is inactive
         if ($user->status === 'inactive') {
             // Check user step
@@ -212,16 +212,15 @@ class UserController extends Controller
                         'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
                     ], 400);
                 }
-
+    
                 // Call the createPayment method and pass the amount
                 $paymentResponse = createPayment(100);
-
-
-                // Check if payment creation was successful
-                if ($paymentResponse['success']) {
+    
+                // Ensure paymentResponse is an array
+                if (is_array($paymentResponse) && $paymentResponse['success']) {
                     // Update user to indicate that payment has been made
                     $user->update(['activation_payment_made' => true]);
-                    return $paymentResponse;
+                    return response()->json($paymentResponse);
                 } else {
                     return response()->json([
                         'success' => false,
@@ -246,6 +245,7 @@ class UserController extends Controller
             ], 400);
         }
     }
+    
 
 
 

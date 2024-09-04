@@ -103,11 +103,11 @@ function routeUsesMiddleware($route, $middlewareName)
         // Update user step
         // $user->activateUser();
 
-        return response()->json([
+        return [
             'success' => true,
             'message' => 'Payment has been successfully created.',
             'payment' => $payment,
-        ], 201);
+        ];
 
 
 
