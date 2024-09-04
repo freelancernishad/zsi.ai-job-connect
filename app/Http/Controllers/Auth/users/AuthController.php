@@ -70,6 +70,7 @@ class AuthController extends Controller
                 'username' => $user->username, // Include username here
                 'step' => $user->step, // Include step here
                 'verified' => $user->hasVerifiedEmail(), // Add email verification status
+                'activation_payment_made' => $user->activation_payment_made,
             ];
 
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
@@ -105,6 +106,7 @@ class AuthController extends Controller
                     'username' => $user->username, // Include username here
                     'step' => $user->step, // Include step here
                     'verified' => $user->hasVerifiedEmail(), // Add email verification status
+                    'activation_payment_made' => $user->activation_payment_made,
                 ];
 
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
