@@ -19,112 +19,14 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Check if access_token is provided
         if ($request->has('access_token')) {
-            // Validate access_token and role
-            $validator = Validator::make($request->all(), [
-                'access_token' => 'required|string',
-                'role' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-
-            // Verify the access token using Google's tokeninfo endpoint
-            $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
-                'access_token' => $request->access_token,
-            ]);
-
-            if ($response->failed()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Invalid access token.',
-                ], 400);
-            }
-
-            $userData = $response->json();
-
-            // Check if the email exists in your database
-            $user = User::where('email', $userData['email'])->first();
-            if (!$user) {
-                // If user does not exist, create a new user
-                $username = explode('@', $userData['email'])[0]; // Extract username from email
-                $user = User::create([
-                    'username' => $username,
-                    'email' => $userData['email'],
-                    'password' => Hash::make(Str::random(16)), // Generate a random password
-                    'role' => $request->role,
-                    'step' => 1, // Set step value to 1
-                    'email_verified_at' => now(), // Automatically verify email
-                ]);
-            }
-
-            // Login the user
-            Auth::login($user);
-
-            // Build the payload including the username and step
-            $payload = [
-                'email' => $user->email,
-                'role' => $user->role,
-                'username' => $user->username, // Include username here
-                'step' => $user->step, // Include step here
-                'verified' => $user->hasVerifiedEmail(), // Add email verification status
-                'activation_payment_made' => $user->activation_payment_made,
-            ];
-
-            $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-            return response()->json([
-                'success' => true,
-                'message' => 'Authentication successful.',
-                'token' => $token,
-                'user' => $payload,
-            ], 200);
+            return handleGoogleLogin($request);
         } else {
-            // Validate email and password
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
-                'password' => 'required|string',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-
-            $credentials = [
-                'email' => $request->email,
-                'password' => $request->password,
-            ];
-
-            if (Auth::attempt($credentials)) {
-                $user = Auth::user();
-
-                // Build the payload including the username and step
-                $payload = [
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'username' => $user->username, // Include username here
-                    'step' => $user->step, // Include step here
-                    'verified' => $user->hasVerifiedEmail(), // Add email verification status
-                    'activation_payment_made' => $user->activation_payment_made,
-                ];
-
-                $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Authentication successful.',
-                    'token' => $token,
-                    'user' => $payload,
-                ], 200);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials. Please check your username and password.',
-            ], 401);
-
+            return handleEmailLogin($request);
         }
     }
+
+
     public function resendVerificationLink(Request $request)
     {
         // Validate the request
