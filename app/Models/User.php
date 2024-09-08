@@ -44,7 +44,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verification_hash',
         'status',
         'activation_payment_made',
-        'email_verified_at', 
+        'email_verified_at',
     ];
 
     /**
@@ -161,5 +161,16 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->update(['step' => 3, 'status' => 'active']);
     }
+
+    public function userLookingServices()
+    {
+        return $this->hasMany(UserLookingService::class);
+    }
+
+    public function servicesLookingFor()
+    {
+        return $this->belongsToMany(Service::class, 'user_looking_services');
+    }
+
 
 }

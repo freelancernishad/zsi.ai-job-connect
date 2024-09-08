@@ -15,13 +15,12 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-    // User update
+ 
 
     public function registerStep2(Request $request)
     {
         // Get the authenticated user via JWT
         $user = auth()->user();
-
 
         // Check if the user exists
         if (!$user) {
@@ -41,6 +40,7 @@ class UserController extends Controller
 
         // Validate the request data
         $validator = Validator::make($request->all(), [
+            // Existing validation rules
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'phone_number' => [
@@ -59,6 +59,7 @@ class UserController extends Controller
             'preferred_work_zipcode' => 'nullable|string|max:10',
             'your_experience' => 'nullable|string',
             'familiar_with_safety_protocols' => 'nullable|boolean',
+            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
 
             // Validation for related models
             'languages' => 'nullable|array',
@@ -87,7 +88,10 @@ class UserController extends Controller
             'employment_history.*.start_date' => 'required_with:employment_history',
             'employment_history.*.end_date' => 'nullable|after_or_equal:employment_history.*.start_date',
             'employment_history.*.responsibilities' => 'nullable|string',
-            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
+
+            // Validation for UserLookingService
+            'looking_services' => 'nullable|array',
+            'looking_services.*' => 'required|exists:services,id'
         ]);
 
         if ($validator->fails()) {
@@ -189,6 +193,11 @@ class UserController extends Controller
             }
         }
 
+        // Update looking services
+        if ($request->has('looking_services')) {
+            $user->lookingServices()->sync($request->looking_services);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Registration completed successfully. You can now proceed to the next step.',
@@ -200,7 +209,7 @@ class UserController extends Controller
     public function registerStep3()
     {
         $user = Auth::user();
-    
+
         // Check if user status is inactive
         if ($user->status === 'inactive') {
             // Check user step
@@ -212,10 +221,10 @@ class UserController extends Controller
                         'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
                     ], 400);
                 }
-    
+
                 // Call the createPayment method and pass the amount
                 $paymentResponse = createPayment(100);
-    
+
                 // Ensure paymentResponse is an array
                 if (is_array($paymentResponse) && $paymentResponse['success']) {
                     // Update user to indicate that payment has been made
@@ -245,7 +254,7 @@ class UserController extends Controller
             ], 400);
         }
     }
-    
+
 
 
 

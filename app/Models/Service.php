@@ -15,4 +15,10 @@ class Service extends Model
     {
         return $this->hasMany(SkillList::class);
     }
+
+    public function usersLookingFor()
+    {
+        return $this->belongsToMany(User::class, 'user_looking_services');
+    }
+
 }
