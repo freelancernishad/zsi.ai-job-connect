@@ -177,4 +177,23 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserLookingService::class);
     }
 
+
+        // Define the relationship for HiringSelections
+        public function hiringSelections()
+        {
+            return $this->hasMany(HiringSelection::class, 'employee_id');
+        }
+
+        // Define the relationship for HiringAssignments
+        public function hiringAssignments()
+        {
+            return $this->hasMany(HiringAssignment::class, 'assigned_employee_id');
+        }
+
+        // Define the relationship for employees in HiringAssignments
+        public function assignedHiringAssignments()
+        {
+            return $this->hasMany(HiringAssignment::class, 'assigned_employee_id');
+        }
+
 }

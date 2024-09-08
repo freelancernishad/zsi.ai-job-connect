@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleUserController;
 use App\Http\Controllers\api\MediaController;
 use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
 use App\Http\Controllers\Auth\users\VerificationController;
@@ -74,6 +75,8 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
 
+
+    Route::post('/hiring-request', [HiringProcessController::class, 'createHiringRequest']);
 
 
 
