@@ -172,5 +172,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Service::class, 'user_looking_services');
     }
 
+    public function lookingServices()
+    {
+        return $this->hasMany(UserLookingService::class);
+    }
 
 }
