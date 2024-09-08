@@ -46,9 +46,12 @@ class HiringProcessController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Hiring request created successfully'], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Hiring request created successfully. Your job posting is now live, and selected employees have been notified.',
+            'hiring_request' => $hiringRequest,
+        ], 201);
     }
-
 
     /**
      * Assign an employee to a hiring request.
@@ -70,7 +73,10 @@ class HiringProcessController extends Controller
         // Ensure only one employee is assigned per hiring request
         $existingAssignment = HiringAssignment::where('hiring_request_id', $id)->first();
         if ($existingAssignment) {
-            return response()->json(['message' => 'Employee already assigned to this request'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'An employee has already been assigned to this hiring request. Please review the assignment.',
+            ], 400);
         }
 
         $assignment = HiringAssignment::create([
@@ -85,7 +91,11 @@ class HiringProcessController extends Controller
         // Update the status of the hiring request
         $hiringRequest->update(['status' => 'Assigned']);
 
-        return response()->json(['message' => 'Employee assigned successfully', 'assignment' => $assignment], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee successfully assigned to the hiring request. The assignment has been recorded.',
+            'assignment' => $assignment,
+        ], 200);
     }
 
     /**
@@ -100,46 +110,90 @@ class HiringProcessController extends Controller
                                       ->findOrFail($id);
 
         return response()->json([
-            'id' => $hiringRequest->id,
-            'employer_id' => $hiringRequest->employer_id,
-            'job_title' => $hiringRequest->job_title,
-            'job_description' => $hiringRequest->job_description,
-            'expected_start_date' => $hiringRequest->expected_start_date,
-            'salary_offer' => $hiringRequest->salary_offer,
-            'status' => $hiringRequest->status,
-            'selected_employees' => $hiringRequest->selectedEmployees->map(function ($selection) {
-
-                return $selection->employee;
-
-                // return [
-                //     'id' => $selection->employee_id,
-                //     'name' => $selection->employee->name,
-                //     'email' => $selection->employee->email,
-                //     'phone_number' => $selection->employee->phone_number,
-                //     'address' => $selection->employee->address,
-                //     'date_of_birth' => $selection->employee->date_of_birth,
-                //     // Add other fields as needed
-                // ];
-
-
-            }),
-            'assigned_employee' => $hiringRequest->hiringAssignments->first()?->employee
-                ?
-                $hiringRequest->hiringAssignments->first()->employee
-                // [
-                //     'id' => $hiringRequest->hiringAssignments->first()->employee->id,
-                //     'name' => $hiringRequest->hiringAssignments->first()->employee->name,
-                //     'email' => $hiringRequest->hiringAssignments->first()->employee->email,
-                //     'phone_number' => $hiringRequest->hiringAssignments->first()->employee->phone_number,
-                //     'address' => $hiringRequest->hiringAssignments->first()->employee->address,
-                //     'date_of_birth' => $hiringRequest->hiringAssignments->first()->employee->date_of_birth,
-                //     // Add other fields as needed
-                // ]
-
-
-                : null,
+            'success' => true,
+            'message' => 'Hiring request details retrieved successfully.',
+            'hiring_request' => [
+                'id' => $hiringRequest->id,
+                'employer_id' => $hiringRequest->employer_id,
+                'job_title' => $hiringRequest->job_title,
+                'job_description' => $hiringRequest->job_description,
+                'expected_start_date' => $hiringRequest->expected_start_date,
+                'salary_offer' => $hiringRequest->salary_offer,
+                'status' => $hiringRequest->status,
+                'selected_employees' => $hiringRequest->selectedEmployees->map(function ($selection) {
+                    return $selection->employee;
+                }),
+                'assigned_employee' => $hiringRequest->hiringAssignments->first()?->employee ?: null,
+            ],
         ], 200);
     }
 
+    /**
+     * Get all hiring requests by a specific step.
+     *
+     * @param string $step
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRequestsByStep($step)
+    {
+        $requests = HiringRequest::where('status', $step)->get();
 
+        return response()->json([
+            'success' => true,
+            'message' => "Hiring requests at the '$step' step retrieved successfully.",
+            'requests' => $requests,
+        ], 200);
+    }
+
+    /**
+     * Get all hiring requests (for admin) with pagination or filtering if needed.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllRequests()
+    {
+        $requests = HiringRequest::all(); // or use paginate() for pagination
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All hiring requests retrieved successfully.',
+            'requests' => $requests,
+        ], 200);
+    }
+
+    /**
+     * Get all hiring requests for a specific employer.
+     *
+     * @param int $employerId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRequestsByEmployer($employerId)
+    {
+        $requests = HiringRequest::where('employer_id', $employerId)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Hiring requests for employer ID $employerId retrieved successfully.",
+            'employer_id' => $employerId,
+            'requests' => $requests,
+        ], 200);
+    }
+
+    /**
+     * Get all hiring requests by their step with pagination.
+     *
+     * @param string $step
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRequestsByStepWithPagination($step)
+    {
+        $requests = HiringRequest::where('status', $step)->paginate(10); // Adjust pagination as needed
+
+        return response()->json([
+            'success' => true,
+            'message' => "Hiring requests at the '$step' step retrieved successfully with pagination.",
+            'step' => $step,
+            'requests' => $requests,
+        ], 200);
+    }
 }

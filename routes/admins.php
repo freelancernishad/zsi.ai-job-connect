@@ -47,6 +47,21 @@ Route::middleware('auth:admin')->group(function () {
 
 
 
+
+    // Route to get requests by step
+    Route::get('/hiring-requests/step/{step}', [HiringProcessController::class, 'getRequestsByStep']);
+
+    // Route to get all hiring requests (admin only)
+    Route::get('/hiring-requests', [HiringProcessController::class, 'getAllRequests']);
+
+    // Route to get requests by employer
+    Route::get('/hiring-requests/employer/{employerId}', [HiringProcessController::class, 'getRequestsByEmployer']);
+
+    // Route to get requests by step with pagination
+    Route::get('/hiring-requests/step/{step}/pagination', [HiringProcessController::class, 'getRequestsByStepWithPagination']);
+
+
+
     Route::post('/hiring-request/{id}/assign', [HiringProcessController::class, 'assignEmployee']);
     Route::get('/hiring-request/{id}', [HiringProcessController::class, 'getHiringRequest']);
 
