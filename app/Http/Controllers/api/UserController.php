@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
- 
+
 
     public function registerStep2(Request $request)
     {
@@ -122,6 +122,12 @@ class UserController extends Controller
         // Update step
         $user->step = 2; // Set step value to 2
 
+        // Update employer_step and status if the role is EMPLOYER
+        if ($user->role === 'EMPLOYER') {
+            $user->employer_step = 2; // Or whatever value is appropriate
+            $user->status = 'active'; // Set status to active
+        }
+
         // Save the user
         $user->save();
 
@@ -196,10 +202,10 @@ class UserController extends Controller
         // Update looking services
         if ($request->has('looking_services')) {
             $serviceIds = $request->looking_services;
-    
+
             // Delete existing looking services for this user
             $user->lookingServices()->delete();
-    
+
             // Create new looking services
             foreach ($serviceIds as $serviceId) {
                 $user->lookingServices()->create([
@@ -213,6 +219,7 @@ class UserController extends Controller
             'message' => 'Registration completed successfully. You can now proceed to the next step.',
         ], 200);
     }
+
 
 
 

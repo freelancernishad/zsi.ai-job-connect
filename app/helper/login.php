@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
 
- function handleGoogleLogin(Request $request)
+function handleGoogleLogin(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'access_token' => 'required|string',
@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
     }
 
     try {
+        // Fetch user data from Google API
         $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
             'access_token' => $request->access_token,
         ]);
@@ -35,14 +36,42 @@ use Illuminate\Support\Str;
         $userData = $response->json();
         $user = User::where('email', $userData['email'])->first();
 
+        $employerStep = $request->role === 'EMPLOYER' ? 2 : 0;
+        $status = $request->role === 'EMPLOYEE' ? 'inactive' : 'active';
+
         if ($user) {
-            // Update the user's role before logging in
-            $user->update(['role' => $request->role]);
+            if ($user->employer_step == 2 && $user->step !== 3) {
+                if ($request->role === 'EMPLOYEE') {
+                    $user->update([
+                        'step' => 1,
+                        'status' => 'inactive',
+                    ]);
+                } elseif ($request->role === 'EMPLOYER') {
+                    $user->update([
+                        'step' => 2,
+                        'status' => 'active',
+                    ]);
+                }
+            } else {
+                // Update role without changing step and status if not meeting above conditions
+                $user->update([
+                    'role' => $request->role,
+                ]);
+            }
         } else {
-            // Create a new user with the provided role
-            $user = createUserFromGoogle($userData, $request->role);
+            // Create a new user
+            $user = User::create([
+                'username' => explode('@', $userData['email'])[0],
+                'email' => $userData['email'],
+                'password' => Hash::make(Str::random(16)), // Generate a random password
+                'role' => $request->role,
+                'step' => $employerStep,
+                'status' => $status,
+                'email_verified_at' => now(),
+            ]);
         }
 
+        // Authenticate and respond with token
         Auth::login($user);
         return respondWithToken($user);
 
@@ -55,7 +84,9 @@ use Illuminate\Support\Str;
     }
 }
 
- function handleEmailLogin(Request $request)
+
+
+function handleEmailLogin(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
@@ -70,8 +101,24 @@ use Illuminate\Support\Str;
     if (Auth::attempt($request->only('email', 'password'))) {
         $user = Auth::user();
 
-        // Update the user's role before responding
-        $user->update(['role' => $request->role]);
+        if ($user->employer_step == 2 && $user->step !== 3) {
+            if ($request->role === 'EMPLOYEE') {
+                $user->update([
+                    'step' => 1,
+                    'status' => 'inactive',
+                ]);
+            } elseif ($request->role === 'EMPLOYER') {
+                $user->update([
+                    'step' => 2,
+                    'status' => 'active',
+                ]);
+            }
+        } else {
+            // Update role without changing step and status if not meeting above conditions
+            $user->update([
+                'role' => $request->role,
+            ]);
+        }
 
         return respondWithToken($user);
     }
@@ -81,6 +128,7 @@ use Illuminate\Support\Str;
         'message' => 'Invalid credentials. Please check your email and password.',
     ], 401);
 }
+
 
  function createUserFromGoogle($userData, $role)
 {

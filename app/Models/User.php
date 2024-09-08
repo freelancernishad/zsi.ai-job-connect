@@ -45,6 +45,7 @@ class User extends Authenticatable implements JWTSubject
         'status',
         'activation_payment_made',
         'email_verified_at',
+        'employer_step',
     ];
 
     /**
