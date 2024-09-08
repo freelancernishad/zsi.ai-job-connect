@@ -195,7 +195,17 @@ class UserController extends Controller
 
         // Update looking services
         if ($request->has('looking_services')) {
-            $user->lookingServices()->sync($request->looking_services);
+            $serviceIds = $request->looking_services;
+    
+            // Delete existing looking services for this user
+            $user->lookingServices()->delete();
+    
+            // Create new looking services
+            foreach ($serviceIds as $serviceId) {
+                $user->lookingServices()->create([
+                    'service_id' => $serviceId,
+                ]);
+            }
         }
 
         return response()->json([
