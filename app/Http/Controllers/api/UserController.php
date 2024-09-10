@@ -298,8 +298,20 @@ class UserController extends Controller
     // Show user details
     public function getUserByUsername(string $username)
     {
-        // Find the user by username
-        $user = User::where('username', $username)->first();
+        // Find the user by username and load all related data
+        $user = User::where('username', $username)
+                    ->with([
+                        'languages',         // Load user's languages
+                        'certifications',    // Load user's certifications
+                        'skills',            // Load user's skills
+                        'education',         // Load user's education
+                        'employmentHistory', // Load user's employment history
+                        'resumes',           // Load user's resumes
+                        'hiringSelections',  // Load user's hiring selections
+                        'hiringAssignments', // Load user's hiring assignments
+                        'assignedHiringAssignments' // Load hiring assignments assigned to the user
+                    ])
+                    ->first();
 
         // Check if the user was found
         if (!$user) {
@@ -309,13 +321,14 @@ class UserController extends Controller
             ], 404);
         }
 
-        // Return the user data as a JSON response
+        // Return the user data along with related data as a JSON response
         return response()->json([
             'success' => true,
             'message' => 'User retrieved successfully.',
             'data' => $user,
         ], 200);
     }
+
 
 
 
