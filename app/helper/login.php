@@ -40,26 +40,31 @@ function handleGoogleLogin(Request $request)
         $status = $request->role === 'EMPLOYEE' ? 'inactive' : 'active';
 
         if ($user) {
-            if ($user->employer_step == 2 && $user->step !== 3) {
-                if ($request->role === 'EMPLOYEE') {
-                    $user->update([
-                        'role' => $request->role,
-                        'step' => 1,
-                        'status' => 'inactive',
-                    ]);
-                } elseif ($request->role === 'EMPLOYER') {
-                    $user->update([
-                        'role' => $request->role,
-                        'step' => 2,
-                        'status' => 'active',
-                    ]);
-                }
-            } else {
+
+
+            // if ($user->employer_step == 2 && $user->step !== 3) {
+            //     if ($request->role === 'EMPLOYEE') {
+            //         $user->update([
+            //             'role' => $request->role,
+            //             'step' => 1,
+            //             'status' => 'inactive',
+            //         ]);
+            //     } elseif ($request->role === 'EMPLOYER') {
+            //         $user->update([
+            //             'role' => $request->role,
+            //             'step' => 2,
+            //             'status' => 'active',
+            //         ]);
+            //     }
+            // } else {
+
+
+
                 // Update role without changing step and status if not meeting above conditions
                 $user->update([
                     'role' => $request->role,
                 ]);
-            }
+            // }
         } else {
             // Create a new user
             $user = User::create([
@@ -109,26 +114,36 @@ function handleEmailLogin(Request $request)
     if (Auth::attempt($request->only('email', 'password'))) {
         $user = Auth::user();
 
-        if ($user->employer_step == 2 && $user->step !== 3) {
-            if ($request->role === 'EMPLOYEE') {
-                $user->update([
-                    'step' => 1,
-                    'status' => 'inactive',
-                    'role' => $request->role,
-                ]);
-            } elseif ($request->role === 'EMPLOYER') {
-                $user->update([
-                    'step' => 2,
-                    'status' => 'active',
-                    'role' => $request->role,
-                ]);
-            }
-        } else {
+
+
+        // if ($user->employer_step == 2 && $user->step !== 3) {
+
+        //     if ($request->role === 'EMPLOYEE') {
+
+
+        //         $user->update([
+        //             'step' => 1,
+        //             'status' => 'inactive',
+        //             'role' => $request->role,
+        //         ]);
+
+
+        //     } elseif ($request->role === 'EMPLOYER') {
+        //         $user->update([
+        //             'step' => 2,
+        //             'status' => 'active',
+        //             'role' => $request->role,
+        //         ]);
+        //     }
+        // } else {
+
+
+
             // Update role without changing step and status if not meeting above conditions
             $user->update([
                 'role' => $request->role,
             ]);
-        }
+        // }
 
         $lookingServices = $user->lookingServices()->exists(); // Check if user has lookingServices
         $response = respondWithToken($user);
