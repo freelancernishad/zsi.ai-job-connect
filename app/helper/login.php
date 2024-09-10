@@ -73,7 +73,12 @@ function handleGoogleLogin(Request $request)
 
         // Authenticate and respond with token
         Auth::login($user);
-        return respondWithToken($user);
+        $lookingServices = $user->lookingServices()->exists(); // Check if user has lookingServices
+        $response = respondWithToken($user);
+        $payload = json_decode($response->content(), true);
+        $payload['lookingServices'] = $lookingServices;
+
+        return $response->setContent(json_encode($payload));
 
     } catch (\Exception $e) {
         return response()->json([
@@ -83,6 +88,7 @@ function handleGoogleLogin(Request $request)
         ], 500);
     }
 }
+
 
 
 
@@ -120,7 +126,12 @@ function handleEmailLogin(Request $request)
             ]);
         }
 
-        return respondWithToken($user);
+        $lookingServices = $user->lookingServices()->exists(); // Check if user has lookingServices
+        $response = respondWithToken($user);
+        $payload = json_decode($response->content(), true);
+        $payload['lookingServices'] = $lookingServices;
+
+        return $response->setContent(json_encode($payload));
     }
 
     return response()->json([
@@ -128,6 +139,7 @@ function handleEmailLogin(Request $request)
         'message' => 'Invalid credentials. Please check your email and password.',
     ], 401);
 }
+
 
 
  function createUserFromGoogle($userData, $role)

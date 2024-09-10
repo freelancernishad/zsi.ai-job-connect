@@ -296,9 +296,26 @@ class UserController extends Controller
     }
 
     // Show user details
+    public function getUserByUsername(string $username)
+    {
+        // Find the user by username
+        $user = User::where('username', $username)->first();
 
+        // Check if the user was found
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
 
-
+        // Return the user data as a JSON response
+        return response()->json([
+            'success' => true,
+            'message' => 'User retrieved successfully.',
+            'data' => $user,
+        ], 200);
+    }
 
 
 

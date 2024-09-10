@@ -55,7 +55,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/user/register/step2', [UserController::class, 'registerStep2']);
     Route::post('/user/register/step3', [UserController::class, 'registerStep3']);
 
-
+    Route::get('/user/{username}', [UserController::class, 'getUserByUsername']);
 
     Route::get('/resumes', [ResumeController::class, 'index']);
     Route::post('/resumes', [ResumeController::class, 'store']);
