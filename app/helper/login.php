@@ -43,11 +43,13 @@ function handleGoogleLogin(Request $request)
             if ($user->employer_step == 2 && $user->step !== 3) {
                 if ($request->role === 'EMPLOYEE') {
                     $user->update([
+                        'role' => $request->role,
                         'step' => 1,
                         'status' => 'inactive',
                     ]);
                 } elseif ($request->role === 'EMPLOYER') {
                     $user->update([
+                        'role' => $request->role,
                         'step' => 2,
                         'status' => 'active',
                     ]);
