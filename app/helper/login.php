@@ -114,11 +114,13 @@ function handleEmailLogin(Request $request)
                 $user->update([
                     'step' => 1,
                     'status' => 'inactive',
+                    'role' => $request->role,
                 ]);
             } elseif ($request->role === 'EMPLOYER') {
                 $user->update([
                     'step' => 2,
                     'status' => 'active',
+                    'role' => $request->role,
                 ]);
             }
         } else {
