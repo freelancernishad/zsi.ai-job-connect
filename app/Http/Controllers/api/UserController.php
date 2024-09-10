@@ -309,7 +309,8 @@ class UserController extends Controller
                         'resumes',           // Load user's resumes
                         'hiringSelections',  // Load user's hiring selections
                         'hiringAssignments', // Load user's hiring assignments
-                        'assignedHiringAssignments' // Load hiring assignments assigned to the user
+                        'assignedHiringAssignments', // Load hiring assignments assigned to the user
+                        'servicesLookingFor' // Load hiring assignments assigned to the user
                     ])
                     ->first();
 
