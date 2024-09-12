@@ -43,6 +43,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('users-with-pending-payments', [AdminUserController::class, 'getUsersWithPendingPayments']);
         Route::post('approve-payment/{paymentId}', [AdminUserController::class, 'approvePayment']);
+        Route::post('cancel-payment/{paymentId}', [AdminUserController::class, 'cancelPayment']);
     });
 
 

@@ -76,4 +76,53 @@ class AdminUserController extends Controller
         ]);
 
     }
+
+    public function cancelPayment($paymentId)
+    {
+        // Find the payment by ID
+        $payment = Payment::find($paymentId);
+
+        // Check if the payment exists
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The specified payment could not be found. Please check the payment ID and try again.',
+            ], 404);
+        }
+
+        // Check if the payment status is not already canceled
+        if ($payment->status === 'canceled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The payment is already canceled.',
+            ], 400);
+        }
+
+        // Check if the payment status is not pending or approved
+        if ($payment->status !== 'pending' && $payment->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The payment is not in a status that can be canceled. Please check the payment status and try again.',
+            ], 400);
+        }
+
+        // Update payment status to canceled
+        $payment->update(['status' => 'canceled']);
+
+        // Optionally, you can deactivate the user or perform other actions if needed
+        // For example, if the payment is associated with a user:
+        $user = User::find($payment->userid);
+        if ($user) {
+            $user->update([
+                'status' => 'inactive',
+                'step' => 1,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment has been canceled successfully.',
+        ]);
+    }
+
 }
