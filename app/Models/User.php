@@ -222,6 +222,7 @@ class User extends Authenticatable implements JWTSubject
 
 
 
+
             // Filter by organization name
             if (isset($filters['organization_name']) && $filters['organization_name'] !== null) {
                 $query->whereHas('organization', function($q) use ($filters) {
