@@ -19,7 +19,7 @@ class GlobalUserController extends Controller
     {
         // Retrieve all filters from the request
         $filters = $request->all();
-        return $serviceId = Service::where('name', $filters['preferred_job_title'])->pluck('id')->first();
+
         // Start building the query
         $query = User::filter($filters)->with([
             'languages',
