@@ -32,9 +32,9 @@ class GlobalUserController extends Controller
         return $users = $query->paginate(10);
 
     // Handle preferred_job_title filter
-    if ($request->has('preferred_job_title')) {
+    if ($request->has('preferred_job')) {
         // Get the service name from the request
-        $serviceName = $request->get('preferred_job_title');
+        $serviceName = $request->get('preferred_job');
 
         // Get service ID from the service name
         $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
