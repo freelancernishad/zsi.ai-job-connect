@@ -21,7 +21,6 @@ class GlobalUserController extends Controller
 
         // Start building the query
         $query = User::filter($filters)->with([
-            'organization',
             'roles',
             'languages',
             'certifications',
