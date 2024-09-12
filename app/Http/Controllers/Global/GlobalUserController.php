@@ -29,9 +29,6 @@ class GlobalUserController extends Controller
             'employmentHistory',
             'preferredJobTitleService'
         ]);
-        // return $users = $query->paginate(10);
-
-
 
         // Check if per_page parameter exists for pagination
         if ($request->has('per_page')) {
@@ -50,8 +47,13 @@ class GlobalUserController extends Controller
             $users = $query->paginate(10);
         }
 
-        // Return the filtered and possibly paginated results
-        return response()->json($users);
+        // Return the filtered and possibly paginated results in a structured JSON response
+        return response()->json([
+            'success' => true,
+            'message' => 'Users successfully retrieved.',
+            'data' => $users
+        ], 200);
     }
+
 
 }
