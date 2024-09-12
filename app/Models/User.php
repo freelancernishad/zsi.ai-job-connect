@@ -197,4 +197,69 @@ class User extends Authenticatable implements JWTSubject
             return $this->hasMany(HiringAssignment::class, 'assigned_employee_id');
         }
 
+
+        
+        public function scopeFilter($query, $filters)
+        {
+            // Filter by user model attributes
+            foreach ($this->fillable as $column) {
+                if (isset($filters[$column]) && $filters[$column] !== null) {
+                    // Apply the filter for the column
+                    $query->where($column, 'LIKE', '%' . $filters[$column] . '%');
+                }
+            }
+
+            // Filter by organization name
+            if (isset($filters['organization_name']) && $filters['organization_name'] !== null) {
+                $query->whereHas('organization', function($q) use ($filters) {
+                    $q->where('name', 'LIKE', '%' . $filters['organization_name'] . '%');
+                });
+            }
+
+            // Filter by role name
+            if (isset($filters['role_name']) && $filters['role_name'] !== null) {
+                $query->whereHas('roles', function($q) use ($filters) {
+                    $q->where('name', 'LIKE', '%' . $filters['role_name'] . '%');
+                });
+            }
+
+            // Filter by language
+            if (isset($filters['language_name']) && $filters['language_name'] !== null) {
+                $query->whereHas('languages', function($q) use ($filters) {
+                    $q->where('name', 'LIKE', '%' . $filters['language_name'] . '%');
+                });
+            }
+
+            // Filter by certifications
+            if (isset($filters['certification_name']) && $filters['certification_name'] !== null) {
+                $query->whereHas('certifications', function($q) use ($filters) {
+                    $q->where('name', 'LIKE', '%' . $filters['certification_name'] . '%');
+                });
+            }
+
+            // Filter by skills
+            if (isset($filters['skill_name']) && $filters['skill_name'] !== null) {
+                $query->whereHas('skills', function($q) use ($filters) {
+                    $q->where('name', 'LIKE', '%' . $filters['skill_name'] . '%');
+                });
+            }
+
+            // Filter by education institution name
+            if (isset($filters['education_institution']) && $filters['education_institution'] !== null) {
+                $query->whereHas('education', function($q) use ($filters) {
+                    $q->where('institution', 'LIKE', '%' . $filters['education_institution'] . '%');
+                });
+            }
+
+            // Filter by employment history
+            if (isset($filters['employment_company']) && $filters['employment_company'] !== null) {
+                $query->whereHas('employmentHistory', function($q) use ($filters) {
+                    $q->where('company_name', 'LIKE', '%' . $filters['employment_company'] . '%');
+                });
+            }
+
+            return $query;
+        }
+
+
 }

@@ -1,14 +1,15 @@
 <?php
 
 use App\Models\Permission;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\SocialLinkController;
 use App\Http\Controllers\AdvertisementController;
 
+use App\Http\Controllers\Global\GlobalUserController;
 use App\Http\Controllers\Global\ServiceController as GlobalServiceController;
 use App\Http\Controllers\Global\SkillListController as GlobalSkillListController;
 use App\Http\Controllers\Backend\SkillListController as BackendSkillListController;
@@ -53,3 +54,6 @@ Route::get('skill-lists', [GlobalSkillListController::class, 'index']);
 Route::post('add/skill-lists', [BackendSkillListController::class, 'store']);
 Route::get('skill-lists/{id}', [GlobalSkillListController::class, 'show']);
 Route::get('services/{serviceId}/skill-lists', [GlobalSkillListController::class, 'listByService']);
+
+
+Route::get('/global/users/filter', [GlobalUserController::class, 'filterUsers']);
