@@ -31,22 +31,7 @@ class GlobalUserController extends Controller
         ]);
         // return $users = $query->paginate(10);
 
-    // Handle preferred_job_title filter
-    if ($request->has('preferred_job')) {
-        // Get the service name from the request
-        $serviceName = $request->get('preferred_job');
 
-        // Get service ID from the service name
-        $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
-
-        if ($serviceId) {
-            // Filter users by service ID
-            $query->where('preferred_job_title', $serviceId);
-        } else {
-            // If no service found, return empty result
-            $query->whereRaw('1 = 0'); // No results
-        }
-    }
 
         // Check if per_page parameter exists for pagination
         if ($request->has('per_page')) {

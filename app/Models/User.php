@@ -267,6 +267,25 @@ class User extends Authenticatable implements JWTSubject
             }
 
 
+                // Handle preferred_job_title filter
+            if (isset($filters['preferred_job'])) {
+                // Get the service name from the request
+                $serviceName = $filters['preferred_job'];
+
+                // Get service ID from the service name
+                $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
+
+                if ($serviceId) {
+                    // Filter users by service ID
+                    $query->where('preferred_job_title', $serviceId);
+                } else {
+                    // If no service found, return empty result
+                    $query->whereRaw('1 = 0'); // No results
+                }
+            }
+
+
+
             return $query;
         }
 
