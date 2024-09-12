@@ -208,12 +208,17 @@ class User extends Authenticatable implements JWTSubject
         {
             // Filter by user model attributes
             foreach ($this->fillable as $column) {
+                // Skip the preferred_job_title column
+                if ($column === 'preferred_job_title') {
+                    continue;
+                }
+        
+                // Apply the filter if the column exists in the filters array and is not null
                 if (isset($filters[$column]) && $filters[$column] !== null) {
-                    // Apply the filter for the column
+                    // Use 'LIKE' for partial matches, or adjust based on your needs
                     $query->where($column, 'LIKE', '%' . $filters[$column] . '%');
                 }
             }
-
 
 
 
@@ -268,9 +273,9 @@ class User extends Authenticatable implements JWTSubject
 
 
                 // Handle preferred_job_title filter
-            if (isset($filters['preferred_job'])) {
+            if (isset($filters['preferred_job_title'])) {
                 // Get the service name from the request
-                $serviceName = $filters['preferred_job'];
+                $serviceName = $filters['preferred_job_title'];
 
                 // Get service ID from the service name
                 $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
