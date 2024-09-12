@@ -30,7 +30,7 @@ class AdminUserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Users with pending payments retrieved successfully.',
-            'users_with_pending_payments' => $users,
+            'users_with_pending_payments' => $payments,
         ]);
     }
 
