@@ -12,7 +12,7 @@ use App\Http\Controllers\Backend\SkillListController as BackendSkillListControll
 // Admin auth routes
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
 Route::post('/admin/check/login', [AdminAuthController::class, 'checkTokenExpiration']);
-Route::post('/admin/check-token', [AdminAuthController::class, 'checkToken']);
+Route::get('/admin/check-token', [AdminAuthController::class, 'checkToken']);
 Route::post('/admin/register', [AdminAuthController::class, 'register']);
 
 Route::middleware('auth:admin')->group(function () {
