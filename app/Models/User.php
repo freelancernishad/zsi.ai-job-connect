@@ -214,7 +214,7 @@ class User extends Authenticatable implements JWTSubject
                 }
             }
 
-            return $query;
+            return $serviceId = Service::where('name', $filters['preferred_job_title'])->pluck('id')->first();
             // Filter by organization name
             if (isset($filters['organization_name']) && $filters['organization_name'] !== null) {
                 $query->whereHas('organization', function($q) use ($filters) {
@@ -268,7 +268,7 @@ class User extends Authenticatable implements JWTSubject
             if (isset($filters['preferred_job_title'])) {
                 // Get service ID from service name
                 $serviceId = Service::where('name', $filters['preferred_job_title'])->pluck('id')->first();
-        
+
                 if ($serviceId) {
                     // Filter users by service ID
                     $query->where('preferred_job_title', $serviceId);
