@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Global;
 
 use App\Models\User;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -18,7 +19,7 @@ class GlobalUserController extends Controller
     {
         // Retrieve all filters from the request
         $filters = $request->all();
-
+        return $serviceId = Service::where('name', $filters['preferred_job_title'])->first();
         // Start building the query
         $query = User::filter($filters)->with([
             'languages',

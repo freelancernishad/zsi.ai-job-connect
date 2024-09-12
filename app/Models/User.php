@@ -214,7 +214,7 @@ class User extends Authenticatable implements JWTSubject
                 }
             }
 
-            return $serviceId = Service::where('name', $filters['preferred_job_title'])->first();
+
 
 
             // Filter by organization name
