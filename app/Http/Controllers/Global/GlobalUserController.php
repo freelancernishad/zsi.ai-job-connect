@@ -29,7 +29,7 @@ class GlobalUserController extends Controller
             'employmentHistory',
             'preferredJobTitleService'
         ]);
-        return $users = $query->paginate(10);
+        // return $users = $query->paginate(10);
 
     // Handle preferred_job_title filter
     if ($request->has('preferred_job')) {
