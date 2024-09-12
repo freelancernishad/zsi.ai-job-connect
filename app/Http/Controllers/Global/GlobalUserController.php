@@ -17,7 +17,7 @@ class GlobalUserController extends Controller
     public function filterUsers(Request $request)
     {
         // Retrieve all filters from the request
-      return  $filters = $request->all();
+        $filters = $request->all();
 
         // Start building the query
         $query = User::filter($filters)->with([
