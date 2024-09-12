@@ -198,7 +198,12 @@ class User extends Authenticatable implements JWTSubject
         }
 
 
-        
+
+        public function preferredJobTitleService()
+        {
+            return $this->belongsTo(Service::class, 'preferred_job_title', 'id');
+        }
+
         public function scopeFilter($query, $filters)
         {
             // Filter by user model attributes
@@ -256,6 +261,11 @@ class User extends Authenticatable implements JWTSubject
                 $query->whereHas('employmentHistory', function($q) use ($filters) {
                     $q->where('company_name', 'LIKE', '%' . $filters['employment_company'] . '%');
                 });
+            }
+
+            // Filter by preferred job title (based on service_id)
+            if (isset($filters['preferred_job_title'])) {
+                $query->where('preferred_job_title', $filters['preferred_job_title']);
             }
 
             return $query;
