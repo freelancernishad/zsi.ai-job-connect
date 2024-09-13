@@ -212,7 +212,7 @@ class User extends Authenticatable implements JWTSubject
                 if ($column === 'preferred_job_title') {
                     continue;
                 }
-        
+
                 // Apply the filter if the column exists in the filters array and is not null
                 if (isset($filters[$column]) && $filters[$column] !== null) {
                     // Use 'LIKE' for partial matches, or adjust based on your needs
@@ -295,5 +295,17 @@ class User extends Authenticatable implements JWTSubject
             return $query;
         }
 
+
+            // Browsing history for the user
+            public function browsingHistory()
+            {
+                return $this->hasMany(BrowsingHistory::class, 'user_id');
+            }
+
+            // Users who have been viewed by this user
+            public function viewedUsers()
+            {
+                return $this->hasMany(BrowsingHistory::class, 'viewed_user_id');
+            }
 
 }

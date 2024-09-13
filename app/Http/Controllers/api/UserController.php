@@ -296,6 +296,7 @@ class UserController extends Controller
     }
 
     // Show user details
+
     public function getUserByUsername(string $username)
     {
         // Find the user by username and load all related data
@@ -321,6 +322,9 @@ class UserController extends Controller
                 'message' => 'User not found.',
             ], 404);
         }
+
+        // Log browsing history
+        logBrowsingHistory($user->id);
 
         // Return the user data along with related data as a JSON response
         return response()->json([

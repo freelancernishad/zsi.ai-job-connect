@@ -10,6 +10,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
+use App\Http\Controllers\Global\BrowsingHistoryController;
 use App\Http\Controllers\Auth\users\VerificationController;
 use App\Http\Controllers\Auth\users\PasswordResetController;
 
@@ -78,6 +79,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::post('/hiring-request', [HiringProcessController::class, 'createHiringRequest']);
 
+
+    // Route for recommending users based on filters and browsing history
+    Route::get('/recommend-users-with-filters', [BrowsingHistoryController::class, 'recommendUsersWithFilters']);
 
 
 

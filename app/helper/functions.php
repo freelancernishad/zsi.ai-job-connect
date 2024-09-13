@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Payment;
+use App\Models\BrowsingHistory;
 use Illuminate\Support\Facades\Auth;
 
 function int_en_to_bn($number)
@@ -117,4 +118,14 @@ function routeUsesMiddleware($route, $middlewareName)
  function generateTransactionId()
 {
     return 'TRX-' . strtoupper(uniqid());
+}
+
+
+function logBrowsingHistory($viewedUserId)
+{
+    BrowsingHistory::create([
+        'user_id' => auth()->id(), // The current user (who is browsing)
+        'viewed_user_id' => $viewedUserId, // The user being viewed
+        'viewed_at' => now(),
+    ]);
 }
