@@ -62,7 +62,7 @@ class ResumeController extends Controller
     public function show($id)
     {
         $user = auth()->user();
-        $resume = $user->resumes()->findOrFail($id);
+         $resume = $user->resumes()->findOrFail($id);
 
         // Serve the file from protected storage
         return Storage::disk('protected')->download($resume->resume_path);
@@ -106,7 +106,7 @@ class ResumeController extends Controller
             'message' => 'Resumes retrieved successfully.',
             'resumes' => $resumes,
         ], 200);
-        
+
     }
 
 
