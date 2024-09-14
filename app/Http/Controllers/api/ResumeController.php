@@ -61,12 +61,13 @@ class ResumeController extends Controller
      */
     public function show($id)
     {
-        $user = auth()->user();
-         $resume = $user->resumes()->findOrFail($id);
+        // Fetch the resume directly by its ID
+        $resume = Resume::findOrFail($id);
 
         // Serve the file from protected storage
         return Storage::disk('protected')->download($resume->resume_path);
     }
+
 
     /**
      * Remove the specified resume from storage.
