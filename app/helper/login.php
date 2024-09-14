@@ -73,7 +73,8 @@ function handleGoogleLogin(Request $request)
                 'password' => Hash::make(Str::random(16)), // Generate a random password
                 'role' => $request->role,
                 'step' => $employerStep,
-                'status' => $status,
+                'status' => 'inactive',
+                'employer_status' => 'inactive',
                 'email_verified_at' => now(),
             ]);
         }
@@ -171,6 +172,8 @@ function handleEmailLogin(Request $request)
         'password' => Hash::make(Str::random(16)),
         'role' => $role,
         'step' => 1,
+        'status' => 'inactive',
+        'employer_status' => 'inactive',
         'email_verified_at' => now(),
     ]);
 }

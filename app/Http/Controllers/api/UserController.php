@@ -40,7 +40,6 @@ class UserController extends Controller
 
         // Validate the request data
         $validator = Validator::make($request->all(), [
-            // Existing validation rules
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'phone_number' => [
@@ -122,10 +121,14 @@ class UserController extends Controller
         // Update step
         $user->step = 2; // Set step value to 2
 
-        // Update employer_step and status if the role is EMPLOYER
+        // Role-based status updates
         if ($user->role === 'EMPLOYER') {
-            $user->employer_step = 2; // Or whatever value is appropriate
-            $user->status = 'active'; // Set status to active
+            // Update only employer_status for EMPLOYER
+            $user->employer_status = 'active';
+            $user->employer_step = 2; // Update employer step if needed
+        } else {
+            // Update status for non-EMPLOYER roles (like EMPLOYEE)
+            $user->status = $request->status ?? $user->status;
         }
 
         // Save the user
@@ -216,10 +219,10 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Registration completed successfully. You can now proceed to the next step.',
-        ], 200);
+            'message' => 'Profile updated successfully!',
+            'user' => $user,
+        ]);
     }
-
 
 
 
@@ -227,50 +230,75 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not authenticated. Please log in and try again.',
+            ], 401);
+        }
+
         // Check if user status is inactive
-        if ($user->status === 'inactive') {
-            // Check user step
-            if ($user->step === 2) {
-                // Check if payment has already been made
-                if ($user->activation_payment_made) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
-                    ], 400);
-                }
+        if ($user->status !== 'inactive') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The user is already active and does not need to complete this step again.',
+            ], 400);
+        }
 
-                // Call the createPayment method and pass the amount
-                $paymentResponse = createPayment(100);
+        // Check user step
+        if ($user->step === 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please complete Step 2 before proceeding to the payment process.',
+            ], 400);
+        }
 
-                // Ensure paymentResponse is an array
-                if (is_array($paymentResponse) && $paymentResponse['success']) {
+        if ($user->step !== 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The user is in an unexpected state. Please contact support for assistance.',
+            ], 400);
+        }
+
+        // Check if payment has already been made
+        if ($user->activation_payment_made) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
+            ], 400);
+        }
+
+        // Call the createPayment method and pass the amount
+        try {
+            $paymentResponse = createPayment(100);
+
+            // Ensure paymentResponse is an array and contains 'success' key
+            if (is_array($paymentResponse) && isset($paymentResponse['success'])) {
+                if ($paymentResponse['success']) {
                     // Update user to indicate that payment has been made
                     $user->update(['activation_payment_made' => true]);
                     return response()->json($paymentResponse);
                 } else {
                     return response()->json([
                         'success' => false,
-                        'message' => 'There was an issue creating the payment. Please try again later or contact support if the problem persists.',
+                        'message' => $paymentResponse['message'] ?? 'Payment creation failed. Please try again later or contact support if the problem persists.',
                     ], 500);
                 }
-            } elseif ($user->step === 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please complete Step 2 before proceeding to the payment process.',
-                ], 400);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'The user is in an unexpected state. Please contact support for assistance.',
-                ], 400);
+                    'message' => 'Invalid payment response format. Please try again later or contact support if the problem persists.',
+                ], 500);
             }
-        } else {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'The user is already active and does not need to complete this step again.',
-            ], 400);
+                'message' => 'An error occurred while processing the payment: ' . $e->getMessage(),
+            ], 500);
         }
     }
+
 
 
 

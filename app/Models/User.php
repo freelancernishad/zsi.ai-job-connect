@@ -43,6 +43,7 @@ class User extends Authenticatable implements JWTSubject
         'resume',
         'email_verification_hash',
         'status',
+        'employer_status', 
         'activation_payment_made',
         'email_verified_at',
         'employer_step',

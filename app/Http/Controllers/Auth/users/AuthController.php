@@ -185,119 +185,133 @@ public function checkToken(Request $request)
 
 
     public function register(Request $request)
-{
-    if ($request->has('access_token')) {
-        // Validate access_token and role
-        $validator = Validator::make($request->all(), [
-            'access_token' => 'required|string',
-            'role' => 'required',
-        ]);
+    {
+        if ($request->has('access_token')) {
+            // Validate access_token and role
+            $validator = Validator::make($request->all(), [
+                'access_token' => 'required|string',
+                'role' => 'required',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+
+            // Fetch user info from Google API using the access token
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $request->access_token,
+            ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
+
+            if ($response->failed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid access token'
+                ], 400);
+            }
+
+            $userData = $response->json();
+
+            // Check if the email already exists
+            $existingUser = User::where('email', $userData['email'])->first();
+            if ($existingUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email already registered'
+                ], 400);
+            }
+
+            // Extract username from email
+            $username = explode('@', $userData['email'])[0];
+
+            // Determine the employer_step based on the role
+            $employerStep = $request->role === 'EMPLOYER' ? 1 : 0;
+
+            // Both employer_status and status will be inactive initially
+            $statusFields = [
+                'employer_status' => 'inactive',
+                'status' => 'inactive',
+            ];
+
+            // Create a new user
+            $user = new User(array_merge([
+                'username' => $username,
+                'email' => $userData['email'],
+                'password' => Hash::make(Str::random(16)), // Generate a random password
+                'role' => $request->role,
+                'step' => 1, // Set step value to 1
+                'employer_step' => $employerStep, // Add employer_step here
+                'email_verified_at' => now(),
+            ], $statusFields));
+
+            $user->save();
+        } else {
+            // Validate email, password, role, and verify_url
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+                'role' => 'required',
+                'verify_url' => 'required|url', // Ensure verify_url is a valid URL
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+
+            // Extract username from email
+            $username = explode('@', $request->email)[0];
+
+            // Determine the employer_step based on the role
+            $employerStep = $request->role === 'EMPLOYER' ? 1 : 0;
+
+            // Both employer_status and status will be inactive initially
+            $statusFields = [
+                'employer_status' => 'inactive',
+                'status' => 'inactive',
+            ];
+
+            // Create a new user
+            $user = new User(array_merge([
+                'username' => $username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'step' => 1, // Set step value to 1
+                'employer_step' => $employerStep, // Add employer_step here
+                'email_verification_hash' => Str::random(60),
+            ], $statusFields));
+
+            $user->save();
+
+            // Generate verification URL
+            $verify_url = $request->verify_url;
+
+            // Send email verification
+            $user->notify(new VerifyEmail($user, $verify_url));
         }
 
-        // Fetch user info from Google API using the access token
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $request->access_token,
-        ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
+        // Build the payload including the username and step
+        $payload = [
+            'email' => $user->email,
+            'role' => $user->role,
+            'username' => $user->username, // Include username here
+            'step' => $user->step, // Include step here
+            'employer_step' => $user->employer_step, // Include employer_step here
+            'employer_status' => $user->employer_status, // Employer status
+            'status' => $user->status, // Employee status
+            'verified' => $user->hasVerifiedEmail(), // Add email verification status
+        ];
 
-        if ($response->failed()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid access token'
-            ], 400);
-        }
+        // Generate JWT token
+        $token = JWTAuth::fromUser($user);
 
-        $userData = $response->json();
-
-        // Check if the email already exists
-        $existingUser = User::where('email', $userData['email'])->first();
-        if ($existingUser) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email already registered'
-            ], 400);
-        }
-
-        // Extract username from email
-        $username = explode('@', $userData['email'])[0];
-
-        // Determine the employer_step based on the role
-        $employerStep = $request->role === 'EMPLOYER' ? 1 : 0;
-
-        // Create a new user
-        $user = new User([
-            'username' => $username,
-            'email' => $userData['email'],
-            'password' => Hash::make(Str::random(16)), // Generate a random password since it's not provided
-            'role' => $request->role,
-            'step' => 1, // Set step value to 1
-            'employer_step' => $employerStep, // Add employer_step here
-            'email_verified_at' => now(),
-        ]);
-
-        $user->save();
-    } else {
-        // Validate email, password, and role
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required',
-            'verify_url' => 'required|url', // Ensure verify_url is a valid URL
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        // Extract username from email
-        $username = explode('@', $request->email)[0];
-
-        // Determine the employer_step based on the role
-        $employerStep = $request->role === 'EMPLOYER' ? 1 : 0;
-
-        // Create a new user
-        $user = new User([
-            'username' => $username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'step' => 1, // Set step value to 1
-            'employer_step' => $employerStep, // Add employer_step here
-            'email_verification_hash' => Str::random(60),
-        ]);
-
-        $user->save();
-
-        // Generate verification URL
-        $verify_url = $request->verify_url;
-
-        // Send email verification
-        $user->notify(new VerifyEmail($user, $verify_url));
+        // Return the response with token and user data
+        return response()->json([
+            'success' => true,
+            'message' => 'Authentication successful. Token and user data returned.',
+            'token' => $token,
+            'user' => $payload
+        ], 201);
     }
-
-    // Build the payload including the username and step
-    $payload = [
-        'email' => $user->email,
-        'role' => $user->role,
-        'username' => $user->username, // Include username here
-        'step' => $user->step, // Include step here
-        'employer_step' => $user->employer_step, // Include employer_step here
-        'verified' => $user->hasVerifiedEmail(), // Add email verification status
-    ];
-
-    // Generate JWT token
-    $token = JWTAuth::fromUser($user);
-
-    // Return the response with token and user data
-    return response()->json([
-        'success' => true,
-        'message' => 'Authentication successful. Token and user data returned.',
-        'token' => $token,
-        'user' => $payload
-    ], 201);
-}
 
 
 
