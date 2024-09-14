@@ -62,7 +62,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/resumes', [ResumeController::class, 'index']);
     Route::post('/resumes', [ResumeController::class, 'store']);
 
-    Route::post('/resumes/download/{id}', [ResumeController::class, 'show']);
+    Route::post('/download/resumes/{id}', [ResumeController::class, 'show']);
 
     Route::delete('/resumes/{id}', [ResumeController::class, 'destroy']);
 
