@@ -14,8 +14,10 @@ class IpAddressProtectionMiddleware
         'http://localhost:3000',
         'https://jobconnectusa.com',
         'https://www.jobconnectusa.com',
-        'https://job-connect-pi.vercel.app'
-      
+        'https://job-connect-pi.vercel.app',
+        'https://admin.jobconnectusa.com',
+        'https://www.admin.jobconnectusa.com',
+
 
 
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleUserController;
 use App\Http\Controllers\api\MediaController;
 use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Global\LikeController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
@@ -84,6 +85,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/recommend-users-with-filters', [BrowsingHistoryController::class, 'recommendUsersWithFilters']);
 
 
+    Route::post('/like-user', [LikeController::class, 'likeUser']);
+    Route::get('/liked-users', [LikeController::class, 'getLikedUsers']);
 
 
 

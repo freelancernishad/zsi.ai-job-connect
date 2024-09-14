@@ -308,4 +308,17 @@ class User extends Authenticatable implements JWTSubject
                 return $this->hasMany(BrowsingHistory::class, 'viewed_user_id');
             }
 
+
+            public function receivedLikes()
+            {
+                return $this->hasMany(Like::class, 'liked_user_id');
+            }
+
+            public function givenLikes()
+            {
+                return $this->hasMany(Like::class, 'user_id');
+            }
+
+
+
 }
