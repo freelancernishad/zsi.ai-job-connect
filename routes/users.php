@@ -61,7 +61,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/resumes', [ResumeController::class, 'index']);
     Route::post('/resumes', [ResumeController::class, 'store']);
-    Route::get('/resumes/{id}', [ResumeController::class, 'show']);
+
+    Route::post('/resumes/download/{id}', [ResumeController::class, 'show']);
+
     Route::delete('/resumes/{id}', [ResumeController::class, 'destroy']);
 
      Route::get('/authenticated/user/resumes', [ResumeController::class, 'getByAuthenticatedUser']);
