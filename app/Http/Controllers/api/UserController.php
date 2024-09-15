@@ -118,8 +118,8 @@ class UserController extends Controller
             $user->resume = $resumePath;
         }
 
-        // Update step
-        $user->step = 2; // Set step value to 2
+
+
 
         // Role-based status updates
         if ($user->role === 'EMPLOYER') {
@@ -129,6 +129,9 @@ class UserController extends Controller
         } else {
             // Update status for non-EMPLOYER roles (like EMPLOYEE)
             $user->status = $request->status ?? $user->status;
+               // Update step
+            $user->step = 2; // Set step value to 2
+
         }
 
         // Save the user
