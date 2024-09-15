@@ -47,20 +47,46 @@ class LikeController extends Controller
     }
 
     // Get liked users for the current user
-    public function getLikedUsers()
-    {
-        $userId = auth()->id();  // Get the ID of the currently logged-in user
+  // app/Http/Controllers/Global/YourController.php
 
-        // Fetch users who have liked this user
-        $likedUsers = Like::where('user_id', $userId)
-                          ->with('likedUser') // Load the liked user
-                          ->get()
-                          ->pluck('likedUser');
+public function getLikedUsers()
+{
+    // Get the ID of the currently logged-in user
+    $currentUserId = auth()->id();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Fetched liked users successfully.',
-            'data' => $likedUsers,
-        ], 200);
-    }
+    // Fetch users that the currently authenticated user has liked
+    $likedUsers = User::whereIn('id', function ($query) use ($currentUserId) {
+        $query->select('liked_user_id')
+              ->from('likes')
+              ->where('user_id', $currentUserId);
+    })
+    ->with([
+        'thumbnail'
+        // 'languages',
+        // 'certifications',
+        // 'skills',
+        // 'education',
+        // 'employmentHistory',
+        // 'resumes',
+        // 'hiringSelections',
+        // 'hiringAssignments',
+        // 'assignedHiringAssignments',
+        // 'servicesLookingFor'
+    ])
+    ->get()
+    ->map(function ($user) use ($currentUserId) {
+        // Add properties to each user
+        $user->user_liked_by_current_user = $user->isLikedByUser($currentUserId);
+        $user->total_likes_received = $user->receivedLikes()->count();
+        return $user;
+    });
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Liked users retrieved successfully.',
+        'data' => $likedUsers,
+    ], 200);
+}
+
+
 }
