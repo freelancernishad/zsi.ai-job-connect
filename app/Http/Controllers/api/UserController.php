@@ -58,7 +58,7 @@ class UserController extends Controller
             'preferred_work_zipcode' => 'nullable|string|max:10',
             'your_experience' => 'nullable|string',
             'familiar_with_safety_protocols' => 'nullable|boolean',
-            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            // 'resume' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
 
             // Validation for related models
             'languages' => 'nullable|array',
