@@ -32,7 +32,7 @@ class ResumeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'resume' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            // 'resume' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         if ($validator->fails()) {
