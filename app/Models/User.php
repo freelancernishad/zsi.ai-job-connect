@@ -43,7 +43,7 @@ class User extends Authenticatable implements JWTSubject
         'resume',
         'email_verification_hash',
         'status',
-        'employer_status', 
+        'employer_status',
         'activation_payment_made',
         'email_verified_at',
         'employer_step',
@@ -319,7 +319,11 @@ class User extends Authenticatable implements JWTSubject
             {
                 return $this->hasMany(Like::class, 'user_id');
             }
-
+            
+            public function thumbnail()
+            {
+                return $this->hasOne(Thumbnail::class);
+            }
 
 
 }

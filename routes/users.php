@@ -8,6 +8,7 @@ use App\Http\Controllers\api\MediaController;
 use App\Http\Controllers\api\ResumeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\Global\LikeController;
+use App\Http\Controllers\api\ThumbnailController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
@@ -89,6 +90,14 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::post('/like-user', [LikeController::class, 'likeUser']);
     Route::get('/liked-users', [LikeController::class, 'getLikedUsers']);
+
+
+    Route::prefix('thumbnails')->group(function () {
+        Route::get('/', [ThumbnailController::class, 'index']);
+        Route::post('/', [ThumbnailController::class, 'store']);
+        Route::put('/{thumbnail}', [ThumbnailController::class, 'update']);
+        Route::delete('/{thumbnail}', [ThumbnailController::class, 'destroy']);
+    });
 
 
 
