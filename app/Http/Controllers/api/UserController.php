@@ -328,42 +328,50 @@ class UserController extends Controller
 
     // Show user details
 
-    public function getUserByUsername(string $username)
-    {
-        // Find the user by username and load all related data
-        $user = User::where('username', $username)
-                    ->with([
-                        'languages',         // Load user's languages
-                        'certifications',    // Load user's certifications
-                        'skills',            // Load user's skills
-                        'education',         // Load user's education
-                        'employmentHistory', // Load user's employment history
-                        'resumes',           // Load user's resumes
-                        'hiringSelections',  // Load user's hiring selections
-                        'hiringAssignments', // Load user's hiring assignments
-                        'assignedHiringAssignments', // Load hiring assignments assigned to the user
-                        'servicesLookingFor' // Load hiring assignments assigned to the user
-                    ])
-                    ->first();
+   // app/Http/Controllers/Global/YourController.php
 
-        // Check if the user was found
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found.',
-            ], 404);
-        }
+public function getUserByUsername(string $username)
+{
+    $user = User::where('username', $username)
+                ->with([
+                    'languages',
+                    'certifications',
+                    'skills',
+                    'education',
+                    'employmentHistory',
+                    'resumes',
+                    'hiringSelections',
+                    'hiringAssignments',
+                    'assignedHiringAssignments',
+                    'servicesLookingFor'
+                ])
+                ->first();
 
-        // Log browsing history
-        logBrowsingHistory($user->id);
-
-        // Return the user data along with related data as a JSON response
+    if (!$user) {
         return response()->json([
-            'success' => true,
-            'message' => 'User retrieved successfully.',
-            'data' => $user,
-        ], 200);
+            'success' => false,
+            'message' => 'User not found.',
+        ], 404);
     }
+
+    // Get the ID of the currently logged-in user
+    $currentUserId = auth()->id();
+
+    // Get the total number of likes received by the user
+    $user->total_likes_received = $user->receivedLikes()->count();
+
+    // Check if the currently authenticated user has liked this user
+    $user->user_liked_by_current_user = $user->isLikedByUser($currentUserId);
+
+    // Log browsing history
+    logBrowsingHistory($user->id);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'User retrieved successfully.',
+        'data' => $user,
+    ], 200);
+}
 
 
 

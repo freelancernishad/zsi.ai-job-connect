@@ -319,7 +319,12 @@ class User extends Authenticatable implements JWTSubject
             {
                 return $this->hasMany(Like::class, 'user_id');
             }
-            
+
+            public function isLikedByUser(int $userId): bool
+            {
+                return $this->receivedLikes()->where('user_id', $userId)->exists();
+            }
+
             public function thumbnail()
             {
                 return $this->hasOne(Thumbnail::class);
