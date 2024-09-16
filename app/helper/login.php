@@ -72,7 +72,7 @@ function handleGoogleLogin(Request $request)
                 'email' => $userData['email'],
                 'password' => Hash::make(Str::random(16)), // Generate a random password
                 'role' => $request->role,
-                'step' => $employerStep,
+                'step' => 1,
                 'status' => 'inactive',
                 'employer_status' => 'inactive',
                 'email_verified_at' => now(),
