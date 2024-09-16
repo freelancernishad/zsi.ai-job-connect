@@ -213,7 +213,7 @@ class User extends Authenticatable implements JWTSubject
             $service = $this->preferredJobTitleService;
             
             // Return the name of the service, or null if not available
-            return $service ? $service->name : null;
+            return $service;
         }
         
 
