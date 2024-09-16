@@ -10,23 +10,25 @@ use App\Models\Service;
 
 class BrowsingHistoryController extends Controller
 {
-    // Function to recommend users with filters
     public function recommendUsersWithFilters(Request $request)
     {
         $filters = $request->all();  // Get all the filters from the request
 
         $userId = auth()->id();  // Get the ID of the currently logged-in user
 
-        // Get recently viewed users, sorted by how recently they were viewed
+        // Get recently viewed users, sorted by how recently they were viewed, and only active ones
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
-            ->with('viewedUser')
+            ->with(['viewedUser' => function ($query) {
+                $query->where('status', 'active');  // Fetch only active users
+            }])
             ->orderBy('viewed_at', 'desc')
             ->take(10) // Limit to 10 recently viewed users
             ->get()
-            ->pluck('viewedUser');
+            ->pluck('viewedUser');  // Extract the users themselves
 
         // Apply the search filters to fetch more employees
-        $query = User::where('role', 'EMPLOYEE');  // EMPLOYER searching for EMPLOYEEs
+        $query = User::where('role', 'EMPLOYEE')  // EMPLOYER searching for EMPLOYEEs
+            ->where('status', 'active');  // Only fetch active users
         $query->filter($filters);  // Apply filters from the request
 
         // Exclude the ones already viewed to avoid recommending the same users
@@ -44,7 +46,7 @@ class BrowsingHistoryController extends Controller
             $limit = (int) $request->get('limit');
             $filteredUsers = $query->limit($limit)->get();
         }
-        // Default to fetching 10 items if neither per_page nor limit is specified
+        // Default to fetching 4 items if neither per_page nor limit is specified
         else {
             $filteredUsers = $query->limit(4)->get();
         }
@@ -59,6 +61,7 @@ class BrowsingHistoryController extends Controller
             'data' => $finalRecommendations,
         ]);
     }
+
 
 
 }
