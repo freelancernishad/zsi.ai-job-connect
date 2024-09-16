@@ -13,9 +13,9 @@ class BrowsingHistoryController extends Controller
     public function recommendUsersWithFilters(Request $request)
     {
         $filters = $request->all();  // Get all the filters from the request
-
+    
         $userId = auth()->id();  // Get the ID of the currently logged-in user
-
+    
         // Get recently viewed users, sorted by how recently they were viewed, and only active ones
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
             ->with(['viewedUser' => function ($query) {
@@ -24,16 +24,17 @@ class BrowsingHistoryController extends Controller
             ->orderBy('viewed_at', 'desc')
             ->take(10) // Limit to 10 recently viewed users
             ->get()
-            ->pluck('viewedUser');  // Extract the users themselves
-
+            ->pluck('viewedUser')  // Extract the users themselves
+            ->filter();  // Remove null values if any
+    
         // Apply the search filters to fetch more employees
         $query = User::where('role', 'EMPLOYEE')  // EMPLOYER searching for EMPLOYEEs
             ->where('status', 'active');  // Only fetch active users
         $query->filter($filters);  // Apply filters from the request
-
+    
         // Exclude the ones already viewed to avoid recommending the same users
         $query->whereNotIn('id', $recentlyViewedUsers->pluck('id'));
-
+    
         // Check if per_page parameter exists for pagination
         if ($request->has('per_page')) {
             // Paginate based on the per_page parameter
@@ -50,10 +51,15 @@ class BrowsingHistoryController extends Controller
         else {
             $filteredUsers = $query->limit(4)->get();
         }
-
+    
         // Combine both recently viewed and filtered users into one list
         $finalRecommendations = $recentlyViewedUsers->merge($filteredUsers);
-
+    
+        // If the combined list is empty, return an empty array instead of null
+        if ($finalRecommendations->isEmpty()) {
+            $finalRecommendations = [];
+        }
+    
         // Send the combined list back to the client
         return response()->json([
             'success' => true,
@@ -61,6 +67,7 @@ class BrowsingHistoryController extends Controller
             'data' => $finalRecommendations,
         ]);
     }
+    
 
 
 
