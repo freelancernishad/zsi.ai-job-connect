@@ -208,10 +208,11 @@ class User extends Authenticatable implements JWTSubject
         }
 
         // Accessor for preferred job title name
-        public function getPreferredJobTitleAttribute()
+        public function getPreferredJobTitleName()
         {
-            return $this->preferredJobTitleService->name ?? null;
+            return $this->preferredJobTitleService ? $this->preferredJobTitleService->name : null;
         }
+        
 
 
 
