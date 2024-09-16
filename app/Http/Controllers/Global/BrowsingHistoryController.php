@@ -17,7 +17,20 @@ class BrowsingHistoryController extends Controller
         // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
             ->with(['viewedUser' => function ($query) {
-                $query->where('status', 'active');  // Fetch only active users
+                $query->where('status', 'active')  // Fetch only active users
+                ->with([  // Eager load the additional relationships
+                    'languages',
+                    'certifications',
+                    'skills',
+                    'education',
+                    'employmentHistory',
+                    'resumes',
+                    'hiringSelections',
+                    'hiringAssignments',
+                    'assignedHiringAssignments',
+                    'servicesLookingFor',
+                    'thumbnail'
+                ]);
             }])
             ->orderBy('viewed_at', 'desc')
             ->take(10)  // Limit to 10 recently viewed users
