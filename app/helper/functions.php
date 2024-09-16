@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Models\Payment;
 use App\Models\BrowsingHistory;
 use Illuminate\Support\Facades\Auth;
