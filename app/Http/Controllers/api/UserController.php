@@ -344,8 +344,7 @@ public function getUserByUsername(string $username)
                     'hiringAssignments',
                     'assignedHiringAssignments',
                     'servicesLookingFor',
-                    'thumbnail',
-                    'preferredJobTitleService'
+                    'thumbnail'
                 ])
                 ->first();
 
