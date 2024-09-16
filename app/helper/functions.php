@@ -129,3 +129,17 @@ function logBrowsingHistory($viewedUserId)
         'viewed_at' => now(),
     ]);
 }
+
+
+function getRandomActiveUsers()
+{
+    // Fetch 4 random users where status is 'active'
+    $randomActiveUsers = User::where('status', 'active')
+        ->where('role', 'EMPLOYEE')  // Assuming you want to get random EMPLOYEEs
+        ->inRandomOrder()  // Randomize the order
+        ->take(4)  // Limit to 4 users
+        ->get();
+
+    // Return the random active users or an empty array if no users are found
+    return $randomActiveUsers->isNotEmpty() ? $randomActiveUsers : [];
+}

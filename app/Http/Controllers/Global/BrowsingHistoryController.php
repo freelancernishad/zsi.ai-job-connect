@@ -13,7 +13,7 @@ class BrowsingHistoryController extends Controller
     public function recommendUsersWithFilters(Request $request)
     {
         $userId = auth()->id();  // Get the ID of the currently logged-in user
-    
+
         // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
             ->with(['viewedUser' => function ($query) {
@@ -24,7 +24,7 @@ class BrowsingHistoryController extends Controller
             ->get()
             ->pluck('viewedUser')  // Extract the users themselves
             ->filter();  // Remove null values (in case some browsing history entries have no user linked)
-    
+
         // If pagination is requested, apply it to the recently viewed users
         if ($request->has('per_page')) {
             $perPage = (int) $request->get('per_page');
@@ -39,15 +39,17 @@ class BrowsingHistoryController extends Controller
         else {
             $finalRecommendations = $recentlyViewedUsers->take(4);  // Default limit of 4
         }
-    
+
+
+
         // Return the recommendations or an empty array if no users are found
         return response()->json([
             'success' => true,
             'message' => 'Recommended users based on your browsing history!',
-            'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations : [],
+            'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations : getRandomActiveUsers(),
         ]);
     }
-    
+
 
 
 
