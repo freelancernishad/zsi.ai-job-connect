@@ -201,17 +201,17 @@ class User extends Authenticatable implements JWTSubject
 
 
 
+        // Relationship with Service for preferred job title
         public function preferredJobTitleService()
         {
             return $this->belongsTo(Service::class, 'preferred_job_title', 'id');
         }
 
-
+        // Accessor for preferred job title name
         public function getPreferredJobTitleAttribute()
         {
             return $this->preferredJobTitleService->name ?? null;
         }
-
 
 
 
