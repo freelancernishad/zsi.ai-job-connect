@@ -12,59 +12,39 @@ class BrowsingHistoryController extends Controller
 {
     public function recommendUsersWithFilters(Request $request)
     {
-        $filters = $request->all();  // Get all the filters from the request
-    
         $userId = auth()->id();  // Get the ID of the currently logged-in user
     
-        // Get recently viewed users, sorted by how recently they were viewed, and only active ones
+        // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
             ->with(['viewedUser' => function ($query) {
                 $query->where('status', 'active');  // Fetch only active users
             }])
             ->orderBy('viewed_at', 'desc')
-            ->take(10) // Limit to 10 recently viewed users
+            ->take(10)  // Limit to 10 recently viewed users
             ->get()
             ->pluck('viewedUser')  // Extract the users themselves
-            ->filter();  // Remove null values if any
+            ->filter();  // Remove null values (in case some browsing history entries have no user linked)
     
-        // Apply the search filters to fetch more employees
-        $query = User::where('role', 'EMPLOYEE')  // EMPLOYER searching for EMPLOYEEs
-            ->where('status', 'active');  // Only fetch active users
-        $query->filter($filters);  // Apply filters from the request
-    
-        // Exclude the ones already viewed to avoid recommending the same users
-        $query->whereNotIn('id', $recentlyViewedUsers->pluck('id'));
-    
-        // Check if per_page parameter exists for pagination
+        // If pagination is requested, apply it to the recently viewed users
         if ($request->has('per_page')) {
-            // Paginate based on the per_page parameter
             $perPage = (int) $request->get('per_page');
-            $filteredUsers = $query->paginate($perPage);
+            $finalRecommendations = $recentlyViewedUsers->forPage(1, $perPage);  // Paginate the collection manually
         }
-        // Check if limit parameter exists for limited results
+        // If limit is requested, limit the number of results
         elseif ($request->has('limit')) {
-            // Limit the results based on the limit parameter
             $limit = (int) $request->get('limit');
-            $filteredUsers = $query->limit($limit)->get();
+            $finalRecommendations = $recentlyViewedUsers->take($limit);
         }
-        // Default to fetching 4 items if neither per_page nor limit is specified
+        // Default to fetching all recently viewed users (with a maximum limit)
         else {
-            $filteredUsers = $query->limit(4)->get();
+            $finalRecommendations = $recentlyViewedUsers->take(4);  // Default limit of 4
         }
     
-        // Combine both recently viewed and filtered users into one list
-        $finalRecommendations = $recentlyViewedUsers->merge($filteredUsers);
-    
-        // If the combined list is empty, return an empty array instead of null
-        if ($finalRecommendations->isEmpty()) {
-            $finalRecommendations = [];
-        }
-    
-        // Send the combined list back to the client
+        // Return the recommendations or an empty array if no users are found
         return response()->json([
             'success' => true,
-            'message' => 'Recommended users based on your browsing history and filters applied!',
-            'data' => $finalRecommendations,
+            'message' => 'Recommended users based on your browsing history!',
+            'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations : [],
         ]);
     }
     
