@@ -16,9 +16,11 @@ class ThumbnailController extends Controller
      */
     public function index()
     {
-        $thumbnail = Thumbnail::latest()->first(); // Get the most recent thumbnail
+        $user = auth()->user(); // Get the authenticated user
+        $thumbnail = Thumbnail::where('user_id', $user->id)->latest()->first(); // Get the most recent thumbnail for the authenticated user
         return response()->json($thumbnail);
     }
+
 
 
     /**
