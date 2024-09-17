@@ -378,5 +378,53 @@ public function getUserByUsername(string $username)
 
 
 
+public function getEmployeesYouMayLike(Request $request)
+{
+
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Employees retrieved successfully.',
+        'data' => getRandomActiveUsers(),
+    ], 200);
+
+    // Get the logged-in user (employer)
+    $user = auth()->user();
+
+    // Ensure the user is an employer
+    if (!$user || $user->role !== 'employer') {
+        return response()->json([
+            'success' => false,
+            'message' => 'User must be an employer.',
+            'data' => null,
+        ], 403);
+    }
+
+    // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
+    $lookingServiceIds = $user->looking_service_id;
+
+    if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No valid preferred services found for the employer.',
+            'data' => null,
+        ], 404);
+    }
+
+    // Find all employees whose preferred_job_title matches any of the employer's looking services
+    $employees = User::where('role', 'employee')
+        ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
+        ->with('preferredJobTitle') // Include related job title/service details
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Employees retrieved successfully.',
+        'data' => $employees,
+    ], 200);
+}
+
+
+
 
 }

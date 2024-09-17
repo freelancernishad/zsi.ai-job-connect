@@ -102,6 +102,7 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 
+    Route::get('/employers-you-may-like', [UserController::class, 'getEmployeesYouMayLike']);
 
 
 
