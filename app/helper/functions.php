@@ -142,5 +142,5 @@ function getRandomActiveUsers()
         ->get();
 
     // Return the random active users or an empty array if no users are found
-    return $randomActiveUsers->isNotEmpty() ? $randomActiveUsers : [];
+    return $randomActiveUsers->isNotEmpty() ? $randomActiveUsers->toArray() : [];
 }
