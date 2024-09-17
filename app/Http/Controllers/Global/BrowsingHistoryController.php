@@ -47,7 +47,8 @@ class BrowsingHistoryController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Recommended users based on your browsing history!',
-        'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations->toArray() : getRandomActiveUsers(),
+        // 'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations->toArray() : getRandomActiveUsers(),
+        'data' => $finalRecommendations->toArray()
     ]);
 }
 
