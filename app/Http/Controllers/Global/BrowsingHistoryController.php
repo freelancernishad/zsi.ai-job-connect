@@ -15,7 +15,7 @@ class BrowsingHistoryController extends Controller
     $userId = auth()->id();  // Get the ID of the currently logged-in user
 
     // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
-    $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
+  return  $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
         ->with(['viewedUser' => function ($query) {
             $query->where('status', 'active')  // Fetch only active users
             ->with([
