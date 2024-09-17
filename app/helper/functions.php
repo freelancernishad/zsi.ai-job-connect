@@ -137,7 +137,7 @@ function getRandomActiveUsers()
     // Fetch 4 random users where status is 'active'
     $randomActiveUsers = User::where('status', 'active')
         ->where('role', 'EMPLOYEE')  // Assuming you want to get random EMPLOYEEs
-        ->inRandomOrder()  // Randomize the order
+        // ->inRandomOrder()  // Randomize the order
         ->take(4)  // Limit to 4 users
         ->get();
 

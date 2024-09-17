@@ -10,6 +10,7 @@ use App\Http\Controllers\SocialLinkController;
 use App\Http\Controllers\AdvertisementController;
 
 use App\Http\Controllers\Global\GlobalUserController;
+use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Global\ServiceController as GlobalServiceController;
 use App\Http\Controllers\Global\SkillListController as GlobalSkillListController;
 use App\Http\Controllers\Backend\SkillListController as BackendSkillListController;
@@ -59,3 +60,8 @@ Route::get('services/{serviceId}/skill-lists', [GlobalSkillListController::class
 Route::get('/global/users/filter', [GlobalUserController::class, 'filterUsers']);
 
 
+
+Route::prefix('employee-hiring-prices')->group(function () {
+    Route::get('/', [EmployeeHiringPriceController::class, 'index']); // Get all records
+    Route::get('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'show']); // Get a single record
+});

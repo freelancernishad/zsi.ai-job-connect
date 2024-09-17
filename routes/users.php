@@ -13,6 +13,7 @@ use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\users\AuthController;
 use App\Http\Controllers\Global\BrowsingHistoryController;
+use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Auth\users\VerificationController;
 use App\Http\Controllers\Auth\users\PasswordResetController;
 
@@ -98,6 +99,13 @@ Route::middleware(['auth:api'])->group(function () {
         Route::put('/{thumbnail}', [ThumbnailController::class, 'update']);
         Route::delete('/{thumbnail}', [ThumbnailController::class, 'destroy']);
     });
+
+
+
+
+
+
+
 
 
 

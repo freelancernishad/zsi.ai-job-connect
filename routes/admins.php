@@ -5,6 +5,7 @@ use App\Http\Controllers\HiringProcessController;
 
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\admins\AdminAuthController;
+use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Backend\ServiceController as BackendServiceController;
 use App\Http\Controllers\Backend\SkillListController as BackendSkillListController;
 
@@ -65,5 +66,14 @@ Route::middleware('auth:admin')->group(function () {
 
     Route::post('/hiring-request/{id}/assign', [HiringProcessController::class, 'assignEmployee']);
     Route::get('/hiring-request/{id}', [HiringProcessController::class, 'getHiringRequest']);
+
+
+
+    Route::prefix('employee-hiring-prices')->group(function () {
+        Route::post('/', [EmployeeHiringPriceController::class, 'store']); // Create new record
+        Route::put('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'update']); // Update a record
+        Route::delete('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'destroy']); // Delete a record
+    });
+
 
 });
