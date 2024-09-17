@@ -15,18 +15,20 @@ class BrowsingHistoryController extends Controller
     $userId = auth()->id();  // Get the ID of the currently logged-in user
 
     // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
-    $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
-        ->with(['viewedUser' => function ($query) {
-            $query->where('status', 'active')  // Fetch only active users
+   return  $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
+    ->with(['viewedUser' => function ($query) {
+        $query->where('status', 'active')  // Fetch only active users
             ->with([
                 'thumbnail'
             ]);
-        }])
-        ->orderBy('viewed_at', 'desc')
-        ->take(10)  // Limit to 10 recently viewed users
-        ->get()
-        ->pluck('viewedUser')  // Extract the users themselves
-        ->filter();  // Remove null values (in case some browsing history entries have no user linked)
+    }])
+    ->orderBy('viewed_at', 'desc')
+    ->take(10)  // Limit to 10 recently viewed users
+    ->get()
+    ->pluck('viewedUser')  // Extract the users themselves
+    ->filter()
+    ->values();  // Re-index the collection to remove the original keys
+
 
     // If pagination is requested, apply it to the recently viewed users
     if ($request->has('per_page')) {
