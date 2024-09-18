@@ -27,7 +27,8 @@ class GlobalUserController extends Controller
             'skills',
             'education',
             'employmentHistory',
-            'preferredJobTitleService'
+            'preferredJobTitleService',
+            'thumbnail'
         ]);
 
         // Check if per_page parameter exists for pagination

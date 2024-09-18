@@ -16,7 +16,7 @@ class EmployeeHiringPriceController extends Controller
     public function index()
     {
         // Fetch all pricing rules
-        $prices = EmployeeHiringPrice::orderBy('number_of_employees','asc')->get();
+        $prices = EmployeeHiringPrice::orderBy('min_number_of_employees', 'asc')->get();
 
         return response()->json([
             'success' => true,
@@ -35,16 +35,33 @@ class EmployeeHiringPriceController extends Controller
     {
         // Validate input
         $validated = $request->validate([
-            'number_of_employees' => 'required|integer|min:1',
-            'price_per_employee' => 'required|numeric',
+            'min_number_of_employees' => 'required|integer|min:1',
+            'max_number_of_employees' => 'required|integer|gte:min_number_of_employees',
+            'price_per_employee' => 'required|numeric|min:0',
         ]);
 
-        // Calculate total price
-        $totalPrice = $validated['number_of_employees'] * $validated['price_per_employee'];
+        // Check if there's any overlapping range in the database
+        $rangeExists = EmployeeHiringPrice::where(function ($query) use ($validated) {
+            $query->whereBetween('min_number_of_employees', [$validated['min_number_of_employees'], $validated['max_number_of_employees']])
+                  ->orWhereBetween('max_number_of_employees', [$validated['min_number_of_employees'], $validated['max_number_of_employees']]);
+        })->exists();
+
+        if ($rangeExists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The employee range overlaps with an existing record.',
+                'data' => null,
+            ], 422); // 422 = Unprocessable Entity
+        }
+
+        // Calculate total price based on the range of employees
+        $totalEmployees = ($validated['max_number_of_employees'] - $validated['min_number_of_employees'] + 1);
+        $totalPrice = $totalEmployees * $validated['price_per_employee'];
 
         // Create a new price rule
         $price = EmployeeHiringPrice::create([
-            'number_of_employees' => $validated['number_of_employees'],
+            'min_number_of_employees' => $validated['min_number_of_employees'],
+            'max_number_of_employees' => $validated['max_number_of_employees'],
             'price_per_employee' => $validated['price_per_employee'],
             'total_price' => $totalPrice,
         ]);
@@ -82,16 +99,35 @@ class EmployeeHiringPriceController extends Controller
     {
         // Validate input
         $validated = $request->validate([
-            'number_of_employees' => 'required|integer|min:1',
-            'price_per_employee' => 'required|numeric',
+            'min_number_of_employees' => 'required|integer|min:1',
+            'max_number_of_employees' => 'required|integer|gte:min_number_of_employees',
+            'price_per_employee' => 'required|numeric|min:0',
         ]);
 
-        // Calculate total price
-        $totalPrice = $validated['number_of_employees'] * $validated['price_per_employee'];
+        // Check for overlapping range, but exclude the current record from the query
+        $rangeExists = EmployeeHiringPrice::where('id', '!=', $employeeHiringPrice->id)
+            ->where(function ($query) use ($validated) {
+                $query->whereBetween('min_number_of_employees', [$validated['min_number_of_employees'], $validated['max_number_of_employees']])
+                      ->orWhereBetween('max_number_of_employees', [$validated['min_number_of_employees'], $validated['max_number_of_employees']]);
+            })
+            ->exists();
+
+        if ($rangeExists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The employee range overlaps with an existing record.',
+                'data' => null,
+            ], 422); // 422 = Unprocessable Entity
+        }
+
+        // Calculate total price based on the range of employees
+        $totalEmployees = ($validated['max_number_of_employees'] - $validated['min_number_of_employees'] + 1);
+        $totalPrice = $totalEmployees * $validated['price_per_employee'];
 
         // Update the price rule
         $employeeHiringPrice->update([
-            'number_of_employees' => $validated['number_of_employees'],
+            'min_number_of_employees' => $validated['min_number_of_employees'],
+            'max_number_of_employees' => $validated['max_number_of_employees'],
             'price_per_employee' => $validated['price_per_employee'],
             'total_price' => $totalPrice,
         ]);

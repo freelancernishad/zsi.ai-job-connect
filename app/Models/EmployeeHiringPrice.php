@@ -15,7 +15,8 @@ class EmployeeHiringPrice extends Model
      * @var array
      */
     protected $fillable = [
-        'number_of_employees',
+        'min_number_of_employees',
+        'max_number_of_employees',
         'price_per_employee',
         'total_price'
     ];
@@ -23,27 +24,12 @@ class EmployeeHiringPrice extends Model
     /**
      * Automatically calculate the total price when creating or updating a record.
      *
-     * @param  array  $attributes
-     * @param  bool   $exists
      * @return void
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-
-        if (!isset($this->total_price) && isset($this->number_of_employees, $this->price_per_employee)) {
-            $this->attributes['total_price'] = $this->calculateTotalPrice();
-        }
-    }
-
-    /**
-     * Calculate the total price for the employee hiring.
-     *
-     * @return float
      */
     public function calculateTotalPrice()
     {
-        return $this->number_of_employees * $this->price_per_employee;
+        $range = $this->max_number_of_employees - $this->min_number_of_employees + 1;
+        return $range * $this->price_per_employee;
     }
 
     /**
