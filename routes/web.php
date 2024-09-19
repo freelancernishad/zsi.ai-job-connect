@@ -23,6 +23,14 @@ Route::get('/', function () {
 });
 
 
+use App\Http\Controllers\StripePaymentController;
+
+
+
+Route::get('/payment', [StripePaymentController::class, 'showPaymentForm'])->name('payment.form');
+
+
+
 
 
 require __DIR__.'/auth.php';

@@ -9,6 +9,7 @@ use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\SocialLinkController;
 use App\Http\Controllers\AdvertisementController;
 
+use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\Global\GlobalUserController;
 use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Global\ServiceController as GlobalServiceController;
@@ -65,3 +66,16 @@ Route::prefix('employee-hiring-prices')->group(function () {
     Route::get('/', [EmployeeHiringPriceController::class, 'index']); // Get all records
     Route::get('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'show']); // Get a single record
 });
+
+
+
+
+
+
+
+
+
+
+Route::post('/stripe/create/payment', [StripePaymentController::class, 'createPayment']);
+Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
+

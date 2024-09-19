@@ -18,6 +18,7 @@ class IpAddressProtectionMiddleware
         'https://admin.jobconnectusa.com',
         'https://www.admin.jobconnectusa.com',
         'http://localhost:3001',
+        'http://localhost:8000',
 
 
 
