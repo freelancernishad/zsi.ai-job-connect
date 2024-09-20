@@ -54,27 +54,47 @@ class StripePaymentController extends Controller
      */
     public function handleWebhook(Request $request)
     {
+        // Set your Stripe secret key
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
+        // Get the webhook secret from the environment variables
         $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+
+        // Get the payload and signature header from the request
         $payload = $request->getContent();
         $sig_header = $request->header('Stripe-Signature');
 
+        // Log the payload for debugging purposes
+        Log::info('Webhook Payload: ', ['payload' => $payload]);
+
         try {
-            // Verify the event
+            // Verify the event with the Stripe webhook secret
             $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
 
-            // Handle checkout session completed
+            // Log the event type for debugging purposes
+            Log::info('Stripe Event Type: ', ['event_type' => $event->type]);
+
+            // Handle the 'checkout.session.completed' event
             if ($event->type == 'checkout.session.completed') {
                 $session = $event->data->object;
 
-                // Find the payment by session ID or other identifier
+                // Log the session data for debugging purposes
+                Log::info('Session Object: ', ['session' => $session]);
+
+                // Find the payment by the session's client reference ID (trxId)
                 $payment = Payment::where('trxId', $session->client_reference_id)->first();
 
-                // Use the private function to update payment status
-                $this->updatePaymentStatus($payment, $session);
+                // Check if the payment exists
+                if ($payment) {
+                    // Use the private function to update the payment status
+                    $this->updatePaymentStatus($payment, $session);
 
-                Log::info('Payment processed successfully: ', ['payment' => $payment]);
+                    // Log the successful processing of the payment
+                    Log::info('Payment processed successfully: ', ['payment' => $payment]);
+                } else {
+                    // Log if the payment is not found
+                    Log::warning('Payment not found for trxId: ' . $session->client_reference_id);
+                }
             }
         } catch (\UnexpectedValueException $e) {
             // Invalid payload
@@ -85,11 +105,12 @@ class StripePaymentController extends Controller
             Log::error('Invalid Signature: ', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Invalid Signature'], 400);
         } catch (\Exception $e) {
-            // General exception
+            // General exception handling
             Log::error('Webhook Error: ', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Webhook Error'], 400);
         }
 
+        // Return a success response to acknowledge receipt of the webhook
         return response()->json(['status' => 'Webhook received']);
     }
 
