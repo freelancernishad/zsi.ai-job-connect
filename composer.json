@@ -36,6 +36,7 @@
             "app/helper/functions.php",
             "app/helper/ekpay.php",
             "app/helper/login.php",
+            "app/helper/stripe.php",
             "app/helper/imgur.php"
         ]
     },

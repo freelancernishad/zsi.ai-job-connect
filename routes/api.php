@@ -77,5 +77,7 @@ Route::prefix('employee-hiring-prices')->group(function () {
 
 
 Route::post('/stripe/create/payment', [StripePaymentController::class, 'createPayment']);
+
+
 Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 

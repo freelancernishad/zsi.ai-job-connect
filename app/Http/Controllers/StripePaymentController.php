@@ -1,54 +1,57 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Stripe\Stripe;
-use Stripe\Webhook;
-use App\Models\Payment;
-use Stripe\PaymentIntent;
-use Stripe\PaymentMethod;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Models\Payment;
+use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
-
+use Illuminate\Support\Facades\Log;
 
 class StripePaymentController extends Controller
 {
-
-
-
-
-    public function showPaymentForm()
+    /**
+     * Create a Stripe Payment and save it to the database.
+     */
+    public function createPayment(Request $request)
     {
-        return view('payment');
+        $paymentData = [
+            'userid' => 1,
+            'amount' => 500,
+            'applicant_mobile' => '1234567890',
+            'balance' => 100
+        ];
+
+        return stripe($paymentData);
     }
 
-    public function createPayment(Request $request)
+
+    /**
+     * Handle payment success (after redirect from Stripe).
+     */
+    public function paymentSuccess(Request $request)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $session = StripeSession::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => 'Product Name',
-                    ],
-                    'unit_amount' => 2000,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => 'http://localhost:8000/success',
-            'cancel_url' => 'http://localhost:8000/failed',
-        ]);
+        // Retrieve the session ID from the URL
+        $session_id = $request->input('session_id');
 
-        return $session->url;
+        // Retrieve session details from Stripe
+        $session = StripeSession::retrieve($session_id);
+
+        // Find the payment by transaction ID or other unique identifier
+        $payment = Payment::where('trxId', $session->client_reference_id)->first();
+
+        // Use the private function to update payment status
+        $this->updatePaymentStatus($payment, $session);
+
+        // Redirect the user to a success page or show success message
+        return view('payment.success', ['payment' => $payment]);
     }
 
-
-
-
+    /**
+     * Handle Stripe webhook notifications.
+     */
     public function handleWebhook(Request $request)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -58,58 +61,64 @@ class StripePaymentController extends Controller
         $sig_header = $request->header('Stripe-Signature');
 
         try {
-            // Log the payload for debugging
-            Log::info('Stripe Webhook Received: ', ['payload' => $payload]);
+            // Verify the event
+            $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
 
-            // Verify the event by comparing its signature to your webhook secret
-            $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-
-            // Log event type
-            Log::info('Stripe Event Type: ', ['event_type' => $event->type]);
-
-            // Handle different event types
-            if ($event->type === 'checkout.session.completed') {
+            // Handle checkout session completed
+            if ($event->type == 'checkout.session.completed') {
                 $session = $event->data->object;
 
-                // Log session details
-                Log::info('Checkout Session Completed: ', [
-                    'session_id' => $session->id,
-                    'payment_status' => $session->payment_status,
-                    'customer_email' => $session->customer_details->email,
-                    'amount_total' => $session->amount_total / 100
-                ]);
+                // Find the payment by session ID or other identifier
+                $payment = Payment::where('trxId', $session->client_reference_id)->first();
 
-                // You can get the payment information here
-                $payment_status = $session->payment_status; // Example: "paid"
-                $customer_email = $session->customer_details->email;
-                $amount_total = $session->amount_total / 100; // Amount in dollars
+                // Use the private function to update payment status
+                $this->updatePaymentStatus($payment, $session);
 
-                // Handle successful payment (e.g., update order status, send receipt, etc.)
+                Log::info('Payment processed successfully: ', ['payment' => $payment]);
             }
-
         } catch (\UnexpectedValueException $e) {
             // Invalid payload
             Log::error('Invalid Payload: ', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Invalid Payload'], 400);
-
         } catch (\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
             Log::error('Invalid Signature: ', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Invalid Signature'], 400);
-
         } catch (\Exception $e) {
             // General exception
             Log::error('Webhook Error: ', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Webhook Error'], 400);
         }
 
-        // Log success response
-        Log::info('Webhook processed successfully');
         return response()->json(['status' => 'Webhook received']);
     }
 
+    /**
+     * Private function to update the payment status.
+     */
+    private function updatePaymentStatus($payment, $session)
+    {
+        if ($session->payment_status == 'paid') {
+            // Update payment to success
+            $payment->update([
+                'status' => 'success',
+                'ipnResponse' => json_encode($session),
+            ]);
+        } else {
+            // Update payment to failed
+            $payment->update([
+                'status' => 'failed',
+                'ipnResponse' => json_encode($session),
+            ]);
+        }
+    }
 
-
-
-
+    /**
+     * Handle payment failure (cancel URL).
+     */
+    public function paymentFailed()
+    {
+        // Show the failed payment page or return a failure message
+        return view('payment.failed');
+    }
 }

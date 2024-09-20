@@ -27,9 +27,10 @@ use App\Http\Controllers\StripePaymentController;
 
 
 
-Route::get('/payment', [StripePaymentController::class, 'showPaymentForm'])->name('payment.form');
 
 
+Route::get('/payment/success', [StripePaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/payment/failed', [StripePaymentController::class, 'paymentFailed'])->name('payment.failed');
 
 
 

@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\HiringRequest;
 use App\Models\HiringSelection;
 use App\Models\HiringAssignment;
-use App\Models\User; // Assuming Employee is also a User
+use App\Models\EmployeeHiringPrice;
 use App\Models\Admin; // Ensure this model exists
+use App\Models\User; // Assuming Employee is also a User
 
 class HiringProcessController extends Controller
 {
@@ -19,6 +20,7 @@ class HiringProcessController extends Controller
      */
     public function createHiringRequest(Request $request)
     {
+        // Validate incoming request
         $request->validate([
             'employer_id' => 'required|exists:users,id',
             'job_title' => 'required|string|max:255',
@@ -27,8 +29,12 @@ class HiringProcessController extends Controller
             'salary_offer' => 'required|numeric',
             'selected_employees' => 'required|array',
             'selected_employees.*' => 'required|exists:users,id',
+            'success_url' => 'required|url',
+            'cancel_url' => 'required|url',
+
         ]);
 
+        // Create the hiring request
         $hiringRequest = HiringRequest::create([
             'employer_id' => $request->input('employer_id'),
             'job_title' => $request->input('job_title'),
@@ -38,20 +44,53 @@ class HiringProcessController extends Controller
             'status' => 'Pending',
         ]);
 
+        // Attach selected employees to the hiring request
         foreach ($request->input('selected_employees') as $employeeId) {
             HiringSelection::create([
                 'hiring_request_id' => $hiringRequest->id,
                 'employee_id' => $employeeId,
-                'selection_note' => null, // Or provide a default note if needed
+                'selection_note' => null, // Optionally set a default note
             ]);
         }
 
+        // Get the total number of selected employees
+        $totalEmployees = count($request->input('selected_employees'));
+
+        // Retrieve the hiring price based on the number of employees
+        $employeeHiringPrice = EmployeeHiringPrice::where('min_number_of_employees', '<=', $totalEmployees)
+            ->where('max_number_of_employees', '>=', $totalEmployees)
+            ->first();
+
+        if (!$employeeHiringPrice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pricing available for the selected number of employees.',
+            ], 400);
+        }
+
+        // Calculate total cost based on the range and price per employee
+        $totalHiringCost = $employeeHiringPrice->calculateTotalPrice();
+
+        // Payment data
+        $paymentData = [
+            'userid' => $request->input('employer_id'),
+            'amount' => $totalHiringCost,
+            'applicant_mobile' => '1234567890', // This should come from employer's data
+            'success_url' => $request->success_url, // Assuming no balance is used here
+            'cancel_url' => $request->cancel_url, // Assuming no balance is used here
+        ];
+
+        // Trigger the Stripe payment and get the redirect URL
+        $paymentUrl = stripe($paymentData);
+
         return response()->json([
             'success' => true,
-            'message' => 'Hiring request created successfully. Your job posting is now live, and selected employees have been notified.',
+            'message' => 'Hiring request created successfully. You will be redirected for payment.',
             'hiring_request' => $hiringRequest,
+            'paymentUrl' => $paymentUrl,
         ], 201);
     }
+
 
     /**
      * Assign an employee to a hiring request.
