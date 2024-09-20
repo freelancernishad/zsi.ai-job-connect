@@ -23,8 +23,8 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->string('month')->nullable();
             $table->year('year')->nullable();
-            $table->string('paymentUrl')->nullable();
-            $table->text('ipnResponse')->nullable();
+            $table->longText('paymentUrl')->nullable();
+            $table->longText('ipnResponse')->nullable();
             $table->string('method')->nullable();
             $table->string('payment_type')->nullable();
             $table->decimal('balance', 10, 2)->nullable();
