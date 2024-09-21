@@ -53,6 +53,7 @@ function stripe($array = [])
         'payment_intent_data' => [
             'capture_method' => 'automatic', // Adjust capture method if necessary
         ],
+        'client_reference_id' => $payment->trxId, // Set client reference id to trxId or other unique identifier
         'success_url' => $array['success_url'] . '?session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => $array['cancel_url'] . '?session_id={CHECKOUT_SESSION_ID}',
     ]);
@@ -65,4 +66,5 @@ function stripe($array = [])
     // Redirect the user to Stripe checkout
     return $session->url;
 }
+
 
