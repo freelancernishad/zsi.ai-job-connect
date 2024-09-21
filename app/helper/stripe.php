@@ -10,10 +10,17 @@ function stripe($array = [])
     // Set Stripe API key
     Stripe::setApiKey(env('STRIPE_SECRET'));
 
+    // Create a new payment intent
+    $paymentIntent = \Stripe\PaymentIntent::create([
+        'amount' => $array['amount'] * 100, // Amount in cents
+        'currency' => 'usd',
+        'payment_method_types' => ['card'],
+    ]);
+
     // Create a new payment record in the database
     $payment = Payment::create([
         'union' => $array['union'] ?? 'no union',
-        'trxId' => uniqid('trx_'), // Generate a unique transaction ID
+        'trxId' => $paymentIntent->id, // Use Stripe payment_intent as trxId
         'userid' => $array['userid'],
         'type' => 'stripe',
         'amount' => $array['amount'],
@@ -30,7 +37,7 @@ function stripe($array = [])
     ]);
 
     // Create Stripe checkout session
-    $session = StripeSession::create([
+    $session = \Stripe\Checkout\Session::create([
         'payment_method_types' => ['card'],
         'line_items' => [[
             'price_data' => [
@@ -43,15 +50,19 @@ function stripe($array = [])
             'quantity' => 1,
         ]],
         'mode' => 'payment',
+        'payment_intent_data' => [
+            'capture_method' => 'automatic', // Adjust capture method if necessary
+        ],
         'success_url' => $array['success_url'] . '?session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => $array['cancel_url'] . '?session_id={CHECKOUT_SESSION_ID}',
     ]);
 
     // Update payment record with Stripe URL
     $payment->update([
-        'paymentUrl' => $session->url
+        'paymentUrl' => $session->url,
     ]);
 
     // Redirect the user to Stripe checkout
     return $session->url;
 }
+
