@@ -58,6 +58,7 @@ function stripe($array = [])
         'cancel_url' => $array['cancel_url'] . '?session_id={CHECKOUT_SESSION_ID}',
     ]);
 
+    Log::info("session:".$session);
     // Update payment record with Stripe URL
     $payment->update([
         'paymentUrl' => $session->url,
