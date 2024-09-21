@@ -122,7 +122,7 @@ class StripePaymentController extends Controller
         if ($session->payment_status == 'paid') {
             // Update payment to success
             $payment->update([
-                'status' => 'success',
+                'status' => 'approved',
                 'ipnResponse' => json_encode($session),
             ]);
         } else {
