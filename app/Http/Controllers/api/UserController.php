@@ -340,9 +340,6 @@ class UserController extends Controller
                        'education',
                        'employmentHistory',
                        'resumes',
-                       'hiringSelections.hiringRequest', // Include hiring request for each selection
-                       'hiringAssignments.job',           // Include job information in hiring assignments
-                       'assignedHiringAssignments',       // Jobs assigned to this user
                        'servicesLookingFor',
                        'thumbnail'
                    ])
