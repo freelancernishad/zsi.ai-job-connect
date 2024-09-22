@@ -26,4 +26,9 @@ class HiringSelection extends Model
     {
         return $this->belongsTo(User::class, 'employee_id');
     }
+
+    public function employer()
+    {
+        return $this->belongsTo(User::class, 'employee_id'); // Adjust if needed
+    }
 }
