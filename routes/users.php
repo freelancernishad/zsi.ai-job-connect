@@ -60,6 +60,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/user/register/step3', [UserController::class, 'registerStep3']);
 
     Route::get('/user/{username}', [UserController::class, 'getUserByUsername']);
+    Route::post('/user/update/profile', [UserController::class, 'updateProfileByToken']);
 
     Route::get('/resumes', [ResumeController::class, 'index']);
     Route::post('/resumes', [ResumeController::class, 'store']);

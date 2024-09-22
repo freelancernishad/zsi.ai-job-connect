@@ -369,6 +369,13 @@ class User extends Authenticatable implements JWTSubject
         ->get();
      }
 
+     public function got_hired()
+    {
+        return HiringAssignment::where('status', 'Assigned') // Ensure the assignment status is 'Assigned'
+            ->where('assigned_employee_id', $this->id) // Adjust this to your actual job_id field
+            ->with('hiringRequest.employer') // Load the associated employees
+            ->get();
+    }
 
 
 }
