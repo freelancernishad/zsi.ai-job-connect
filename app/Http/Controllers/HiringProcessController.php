@@ -102,49 +102,49 @@ class HiringProcessController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function assignEmployee(Request $request, $id)
-    {
-        $request->validate([
-            'assigned_employee_id' => 'required|array',
-            'assigned_employee_id.*' => 'exists:users,id',
-            'assignment_note' => 'nullable|string',
-            'assignment_date' => 'required|date',
-        ]);
+{
+    $request->validate([
+        'assigned_employee_id' => 'required|array',
+        'assigned_employee_id.*' => 'exists:users,id',
+        'assignment_note' => 'nullable|string',
+        'assignment_date' => 'required|date',
+    ]);
 
-        $hiringRequest = HiringRequest::findOrFail($id);
+    $hiringRequest = HiringRequest::findOrFail($id);
 
-        // Count the current assignments
-        $currentAssignmentsCount = $hiringRequest->hiringAssignments()->count();
+    // Count the current assignments
+    $currentAssignmentsCount = $hiringRequest->hiringAssignments()->count();
 
-        // Check if the current assignments plus new assignments exceed employee_needed
-        if ($currentAssignmentsCount + count($request->input('assigned_employee_id')) > $hiringRequest->employee_needed) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot assign more employees than required. Maximum needed is ' . $hiringRequest->employee_needed,
-            ], 400);
-        }
-
-        // Assign each employee from the provided array
-        foreach ($request->input('assigned_employee_id') as $employeeId) {
-            HiringAssignment::create([
-                'hiring_request_id' => $id,
-                'assigned_employee_id' => $employeeId,
-                'admin_id' => $request->user()->id, // Assuming admin is the current authenticated user
-                'assignment_note' => $request->input('assignment_note'),
-                'assignment_date' => $request->input('assignment_date'),
-                'status' => 'Assigned',
-            ]);
-        }
-
-        // Update the status of the hiring request if the required number of employees has been met
-        if ($currentAssignmentsCount + count($request->input('assigned_employee_id')) >= $hiringRequest->employee_needed) {
-            $hiringRequest->update(['status' => 'Assigned']);
-        }
-
+    // Check if the new assignments match the employee_needed exactly
+    $newAssignmentsCount = count($request->input('assigned_employee_id'));
+    if ($currentAssignmentsCount + $newAssignmentsCount != $hiringRequest->employee_needed) {
         return response()->json([
-            'success' => true,
-            'message' => 'Employees successfully assigned to the hiring request. The assignments have been recorded.',
-        ], 200);
+            'success' => false,
+            'message' => 'The total number of assigned employees must equal the required number of employees (' . $hiringRequest->employee_needed . ').',
+        ], 400);
     }
+
+    // Assign each employee from the provided array
+    foreach ($request->input('assigned_employee_id') as $employeeId) {
+        HiringAssignment::create([
+            'hiring_request_id' => $id,
+            'assigned_employee_id' => $employeeId,
+            'admin_id' => $request->user()->id, // Assuming admin is the current authenticated user
+            'assignment_note' => $request->input('assignment_note'),
+            'assignment_date' => $request->input('assignment_date'),
+            'status' => 'Assigned',
+        ]);
+    }
+
+    // Update the status of the hiring request to 'Assigned'
+    $hiringRequest->update(['status' => 'Assigned']);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Employees successfully assigned to the hiring request. The assignments have been recorded.',
+    ], 200);
+}
+
 
 
     /**
