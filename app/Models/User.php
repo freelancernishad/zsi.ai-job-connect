@@ -366,7 +366,7 @@ class User extends Authenticatable implements JWTSubject
      {
 
         return HiringRequest::where('employer_id', $this->id)
-        ->where('status', 'hired')
+        ->where('status', 'Assigned')
         ->with('selectedEmployees.employee') // Load the associated employees
         ->get();
 
