@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('employer_id')->constrained('users'); // Assuming users table stores employer
             $table->string('job_title');
             $table->text('job_description');
-            $table->date('expected_start_date');
+            $table->string('expected_start_date')->nullable();
             $table->decimal('salary_offer', 8, 2);
             $table->enum('status', ['Pending', 'Assigned', 'Completed'])->default('Pending');
             $table->timestamps();

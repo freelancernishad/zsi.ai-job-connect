@@ -31,23 +31,41 @@ class StripePaymentController extends Controller
      */
     public function paymentSuccess(Request $request)
     {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
         // Retrieve the session ID from the URL
         $session_id = $request->input('session_id');
 
-        // Retrieve session details from Stripe
-        $session = StripeSession::retrieve($session_id);
-
         // Find the payment by transaction ID or other unique identifier
-        $payment = Payment::where('trxId', $session->client_reference_id)->first();
+        $payment = Payment::where('trxId', $session_id)->first();
+
+        // Check if the payment exists
+        if (!$payment) {
+            // Return error response if payment is not found
+            return jsonResponse(false, 'Payment not found', null, 404);
+        }
+
+        // If the payment is already approved, no need to check with Stripe
+        if ($payment->status === 'approved') {
+            return jsonResponse(true, 'Payment is already approved', $payment, 200);
+        }
+
+        // If payment is not approved, check with Stripe
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            // Retrieve session details from Stripe
+            $session = StripeSession::retrieve($session_id);
+        } catch (\Exception $e) {
+            // Handle any errors from Stripe
+            return jsonResponse(false, 'Error retrieving payment session from Stripe', null, 500);
+        }
 
         // Use the private function to update payment status
         $this->updatePaymentStatus($payment, $session);
 
-        // Redirect the user to a success page or show success message
-        return view('payment.success', ['payment' => $payment]);
+        // Return success response after updating payment status
+        return jsonResponse(true, 'Payment status updated successfully', $payment, 200);
     }
+
 
     /**
      * Handle Stripe webhook notifications.
@@ -99,20 +117,21 @@ class StripePaymentController extends Controller
         } catch (\UnexpectedValueException $e) {
             // Invalid payload
             Log::error('Invalid Payload: ', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Invalid Payload'], 400);
+            return jsonResponse(false, 'Invalid Payload', null, 400);
         } catch (\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
             Log::error('Invalid Signature: ', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Invalid Signature'], 400);
+            return jsonResponse(false, 'Invalid Signature', null, 400);
         } catch (\Exception $e) {
             // General exception handling
             Log::error('Webhook Error: ', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Webhook Error'], 400);
+            return jsonResponse(false, 'Webhook Error', null, 400);
         }
 
         // Return a success response to acknowledge receipt of the webhook
-        return response()->json(['status' => 'Webhook received']);
+        return jsonResponse(true, 'Webhook received', null, 200);
     }
+
 
     /**
      * Private function to update the payment status.
@@ -134,12 +153,5 @@ class StripePaymentController extends Controller
         }
     }
 
-    /**
-     * Handle payment failure (cancel URL).
-     */
-    public function paymentFailed()
-    {
-        // Show the failed payment page or return a failure message
-        return view('payment.failed');
-    }
+
 }
