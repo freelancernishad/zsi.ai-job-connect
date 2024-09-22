@@ -31,6 +31,7 @@ class HiringProcessController extends Controller
             'selected_employees.*' => 'required|exists:users,id',
             'success_url' => 'required|url',
             'cancel_url' => 'required|url',
+            'employee_needed' => 'required|integer|min:1',  // Validate employee_needed
 
         ]);
 
@@ -41,6 +42,7 @@ class HiringProcessController extends Controller
             'job_description' => $request->input('job_description'),
             'expected_start_date' => $request->input('expected_start_date'),
             'salary_offer' => $request->input('salary_offer'),
+            'employee_needed' => $request->input('employee_needed'),  // Store employee_needed
             'status' => 'Pending',
         ]);
 

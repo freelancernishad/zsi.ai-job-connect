@@ -16,6 +16,7 @@ class HiringRequest extends Model
         'expected_start_date',
         'salary_offer',
         'status',
+        'employee_needed',
     ];
 
     // Relationship with Employer (User)
