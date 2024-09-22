@@ -362,10 +362,10 @@ class UserController extends Controller
        $user->user_liked_by_current_user = $user->isLikedByUser($currentUserId);
 
        // Add the list of jobs assigned to the user
-       $user->jobs_assigned_to_user = $user->hiringAssignments;
+    //    $user->jobs_assigned_to_user = $user->hiringAssignments;
 
        // Add the list of employers who hired the user
-       $user->employers_that_hired_user = $user->hiringSelections->pluck('employer');
+    //    $user->employers_that_hired_user = $user->hiringSelections->pluck('employer');
 
        // Add pending hiring and hired employees
        $user->pending_hiring = $user->pendingHiring(); // Get pending hiring
