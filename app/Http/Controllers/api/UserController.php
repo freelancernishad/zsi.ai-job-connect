@@ -445,12 +445,12 @@ public function getEmployeesYouMayLike(Request $request)
 
         // Check if the user exists
         if (!$user) {
-            return $this->jsonResponse(false, 'The user you are trying to access does not exist. Please check the user ID and try again.', null, 404);
+            return jsonResponse(false, 'The user you are trying to access does not exist. Please check the user ID and try again.', null, 404);
         }
 
         // Check if the user's email is verified
         if (!$user->hasVerifiedEmail()) {
-            return $this->jsonResponse(false, 'Your email address is not verified. Please verify your email before proceeding.', null, 403);
+            return jsonResponse(false, 'Your email address is not verified. Please verify your email before proceeding.', null, 403);
         }
 
         // Validate the request data
@@ -508,7 +508,7 @@ public function getEmployeesYouMayLike(Request $request)
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponse(false, 'Validation errors occurred.', null, 400, ['errors' => $validator->errors()]);
+            return jsonResponse(false, 'Validation errors occurred.', null, 400, ['errors' => $validator->errors()]);
         }
 
         // Update the user's fields
@@ -618,7 +618,7 @@ public function getEmployeesYouMayLike(Request $request)
             }
         }
 
-        return $this->jsonResponse(true, 'Profile updated successfully!', $user);
+        return jsonResponse(true, 'Profile updated successfully!', $user);
     }
 
 
