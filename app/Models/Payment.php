@@ -11,6 +11,7 @@ class Payment extends Model
     protected $fillable = [
         'union',
         'trxId',
+        'session_id',
         'userid',
         'type',
         'amount',
