@@ -340,50 +340,51 @@ class UserController extends Controller
                        'education',
                        'employmentHistory',
                        'resumes',
-                       'hiringSelections.employer', // Include employer who hired the user
-                       'hiringAssignments.job',     // Include job information in hiring assignments
-                       'assignedHiringAssignments', // Jobs assigned to this user
+                       'hiringSelections.hiringRequest', // Include hiring request for each selection
+                       'hiringAssignments.job',           // Include job information in hiring assignments
+                       'assignedHiringAssignments',       // Jobs assigned to this user
                        'servicesLookingFor',
                        'thumbnail'
                    ])
                    ->first();
-   
+
        if (!$user) {
            return response()->json([
                'success' => false,
                'message' => 'User not found.',
            ], 404);
        }
-   
+
        // Get the ID of the currently logged-in user
        $currentUserId = auth()->id();
-   
+
        // Add the total number of likes received to the user object
        $user->total_likes_received = $user->receivedLikes()->count();
-   
+
        // Check if the currently authenticated user has liked this user and add it to the user object
        $user->user_liked_by_current_user = $user->isLikedByUser($currentUserId);
-   
+
        // Add the list of jobs assigned to the user
        $user->jobs_assigned_to_user = $user->hiringAssignments;
-   
+
        // Add the list of employers who hired the user
        $user->employers_that_hired_user = $user->hiringSelections->pluck('employer');
-   
+
        // Add pending hiring and hired employees
        $user->pending_hiring = $user->pendingHiring(); // Get pending hiring
        $user->hired_employees = $user->hiredEmployees(); // Get hired employees
-   
+
        // Log browsing history
        logBrowsingHistory($user->id);
-   
+
        return response()->json([
            'success' => true,
            'message' => 'User retrieved successfully.',
            'data' => $user,  // All attributes are now part of the $user object
        ], 200);
    }
-   
+
+
 
 
 

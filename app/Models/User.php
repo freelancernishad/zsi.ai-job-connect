@@ -180,7 +180,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
- 
+
 
         // Define the relationship for HiringAssignments
         public function hiringAssignments()
@@ -340,20 +340,34 @@ class User extends Authenticatable implements JWTSubject
             }
 
 
-                // Relationship with HiringSelection
-    public function hiringSelections()
-    {
-        return $this->hasMany(HiringSelection::class, 'employee_id'); // Adjust foreign key if needed
-    }
+     // Relationship with HiringSelections
+     public function hiringSelections()
+     {
+         return $this->hasMany(HiringSelection::class, 'employee_id'); // Adjust foreign key if needed
+     }
 
-    public function pendingHiring()
-    {
-        return $this->hiringSelections()->where('status', 'pending')->get(); // Adjust 'status' based on your database
-    }
+     // Relationship with HiringRequests (if applicable)
+     public function hiringRequests()
+     {
+         return $this->hasMany(HiringRequest::class, 'employer_id');
+     }
 
-    public function hiredEmployees()
-    {
-        return $this->hiringSelections()->where('status', 'hired')->get(); // Adjust 'status' based on your database
-    }
+     public function pendingHiring()
+     {
+         return $this->hiringSelections()
+             ->whereHas('hiringRequest', function ($query) {
+                 $query->where('status', 'pending'); // Adjust 'status' as necessary
+             })
+             ->get();
+     }
+
+     public function hiredEmployees()
+     {
+         return $this->hiringSelections()
+             ->whereHas('hiringRequest', function ($query) {
+                 $query->where('status', 'hired'); // Adjust 'status' as necessary
+             })
+             ->get();
+     }
 
 }
