@@ -71,7 +71,7 @@ class HiringProcessController extends Controller
         }
 
         // Calculate total cost based on the range and price per employee
-        $totalHiringCost = $employeeHiringPrice->calculateTotalPrice(count($request->selected_employees));
+        $totalHiringCost = $employeeHiringPrice->calculateTotalPrice($request->employee_needed);
 
         // Payment data
         $paymentData = [
