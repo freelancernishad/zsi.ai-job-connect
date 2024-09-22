@@ -21,15 +21,18 @@ class EmployeeHiringPrice extends Model
         'total_price'
     ];
 
-    /**
-     * Automatically calculate the total price when creating or updating a record.
+      /**
+     * Automatically calculate the total price based on the number of employees.
      *
-     * @return void
+     * @param int $numberOfEmployees
+     * @return float
      */
-    public function calculateTotalPrice()
+    public function calculateTotalPrice($numberOfEmployees)
     {
-        $range = $this->max_number_of_employees - $this->min_number_of_employees + 1;
-        return $range * $this->price_per_employee;
+        // Ensure the number of employees is within the defined range
+        $numberOfEmployees = max($this->min_number_of_employees, min($numberOfEmployees, $this->max_number_of_employees));
+
+        return $numberOfEmployees * $this->price_per_employee;
     }
 
     /**
@@ -40,6 +43,7 @@ class EmployeeHiringPrice extends Model
      */
     public function setTotalPriceAttribute($value)
     {
-        $this->attributes['total_price'] = $this->calculateTotalPrice();
+        // Assuming you're passing the actual number of employees
+        $this->attributes['total_price'] = $this->calculateTotalPrice($value);
     }
 }
