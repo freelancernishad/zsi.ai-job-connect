@@ -354,12 +354,13 @@ class User extends Authenticatable implements JWTSubject
 
      public function pendingHiring()
      {
-         return $this->hiringSelections()
-             ->whereHas('hiringRequest', function ($query) {
-                 $query->where('status', 'pending'); // Adjust 'status' as necessary
-             })
+         return HiringRequest::where('employer_id', $this->id)
+             ->where('status', 'pending')
+             ->with('selectedEmployees') // Load the associated employees
              ->get();
      }
+
+
 
      public function hiredEmployees()
      {
