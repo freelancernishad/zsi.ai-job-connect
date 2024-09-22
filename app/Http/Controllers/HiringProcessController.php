@@ -104,40 +104,48 @@ class HiringProcessController extends Controller
     public function assignEmployee(Request $request, $id)
     {
         $request->validate([
-            'assigned_employee_id' => 'required|exists:users,id',
+            'assigned_employee_id' => 'required|array',
+            'assigned_employee_id.*' => 'exists:users,id',
             'assignment_note' => 'nullable|string',
             'assignment_date' => 'required|date',
         ]);
 
         $hiringRequest = HiringRequest::findOrFail($id);
 
-        // Ensure only one employee is assigned per hiring request
-        $existingAssignment = HiringAssignment::where('hiring_request_id', $id)->first();
-        if ($existingAssignment) {
+        // Count the current assignments
+        $currentAssignmentsCount = $hiringRequest->hiringAssignments()->count();
+
+        // Check if the current assignments plus new assignments exceed employee_needed
+        if ($currentAssignmentsCount + count($request->input('assigned_employee_id')) > $hiringRequest->employee_needed) {
             return response()->json([
                 'success' => false,
-                'message' => 'An employee has already been assigned to this hiring request. Please review the assignment.',
+                'message' => 'Cannot assign more employees than required. Maximum needed is ' . $hiringRequest->employee_needed,
             ], 400);
         }
 
-        $assignment = HiringAssignment::create([
-            'hiring_request_id' => $id,
-            'assigned_employee_id' => $request->input('assigned_employee_id'),
-            'admin_id' => $request->user()->id, // Assuming admin is the current authenticated user
-            'assignment_note' => $request->input('assignment_note'),
-            'assignment_date' => $request->input('assignment_date'),
-            'status' => 'Assigned',
-        ]);
+        // Assign each employee from the provided array
+        foreach ($request->input('assigned_employee_id') as $employeeId) {
+            HiringAssignment::create([
+                'hiring_request_id' => $id,
+                'assigned_employee_id' => $employeeId,
+                'admin_id' => $request->user()->id, // Assuming admin is the current authenticated user
+                'assignment_note' => $request->input('assignment_note'),
+                'assignment_date' => $request->input('assignment_date'),
+                'status' => 'Assigned',
+            ]);
+        }
 
-        // Update the status of the hiring request
-        $hiringRequest->update(['status' => 'Assigned']);
+        // Update the status of the hiring request if the required number of employees has been met
+        if ($currentAssignmentsCount + count($request->input('assigned_employee_id')) >= $hiringRequest->employee_needed) {
+            $hiringRequest->update(['status' => 'Assigned']);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Employee successfully assigned to the hiring request. The assignment has been recorded.',
-            'assignment' => $assignment,
+            'message' => 'Employees successfully assigned to the hiring request. The assignments have been recorded.',
         ], 200);
     }
+
 
     /**
      * Get details of a hiring request including assigned employee.
