@@ -34,8 +34,8 @@ class StripePaymentController extends Controller
         // Retrieve the session ID from the URL
         $session_id = $request->input('session_id');
 
-        // Find the payment by transaction ID or other unique identifier
-        $payment = Payment::where('trxId', $session_id)->first();
+        // Find the payment by checkout_session_id
+        $payment = Payment::where('checkout_session_id', $session_id)->first();
 
         // Check if the payment exists
         if (!$payment) {
@@ -53,7 +53,7 @@ class StripePaymentController extends Controller
 
         try {
             // Retrieve session details from Stripe
-            $session = StripeSession::retrieve($session_id);
+            $session = \Stripe\Checkout\Session::retrieve($session_id);
         } catch (\Exception $e) {
             // Handle any errors from Stripe
             return jsonResponse(false, 'Error retrieving payment session from Stripe', null, 500);
@@ -65,6 +65,7 @@ class StripePaymentController extends Controller
         // Return success response after updating payment status
         return jsonResponse(true, 'Payment status updated successfully', $payment, 200);
     }
+
 
 
     /**

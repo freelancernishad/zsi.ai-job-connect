@@ -59,13 +59,16 @@ function stripe($array = [])
     ]);
 
     Log::info("session:".$session);
-    // Update payment record with Stripe URL
+
+    // Update payment record with Stripe URL and CHECKOUT_SESSION_ID
     $payment->update([
         'paymentUrl' => $session->url,
+        'checkout_session_id' => $session->id, // Save session ID to payment model
     ]);
 
     // Redirect the user to Stripe checkout
     return $session->url;
 }
+
 
 
