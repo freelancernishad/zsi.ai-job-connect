@@ -236,7 +236,7 @@ class HiringProcessController extends Controller
      */
     public function getRequestsByStepWithPagination($step)
     {
-        $requests = HiringRequest::with(['employer','selectedEmployees'.'hiringAssignments'])->where('status', $step)->paginate(10); // Adjust pagination as needed
+        $requests = HiringRequest::with(['employer','selectedEmployees','hiringAssignments'])->where('status', $step)->paginate(10); // Adjust pagination as needed
 
         return response()->json([
             'success' => true,
