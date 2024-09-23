@@ -512,19 +512,45 @@ public function updateProfileByToken(Request $request)
     }
 
     // Update the user's fields
-    $user->first_name = $request->first_name ?? $user->first_name;
-    $user->last_name = $request->last_name ?? $user->last_name;
-    $user->phone_number = $request->phone_number ?? $user->phone_number;
-    $user->address = $request->address ?? $user->address;
-    $user->date_of_birth = $request->date_of_birth ? date("Y-m-d", strtotime($request->date_of_birth)) : $user->date_of_birth;
-    $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
-    $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
-    $user->description = $request->description ?? $user->description;
-    $user->years_of_experience_in_the_industry = $request->years_of_experience_in_the_industry ?? $user->years_of_experience_in_the_industry;
-    $user->preferred_work_state = $request->preferred_work_state ?? $user->preferred_work_state;
-    $user->preferred_work_zipcode = $request->preferred_work_zipcode ?? $user->preferred_work_zipcode;
-    $user->your_experience = $request->your_experience ?? $user->your_experience;
-    $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols ?? $user->familiar_with_safety_protocols;
+    if ($request->has('first_name')) {
+        $user->first_name = $request->first_name;
+    }
+    if ($request->has('last_name')) {
+        $user->last_name = $request->last_name;
+    }
+    if ($request->has('phone_number')) {
+        $user->phone_number = $request->phone_number;
+    }
+    if ($request->has('address')) {
+        $user->address = $request->address;
+    }
+    if ($request->has('date_of_birth')) {
+        $user->date_of_birth = $request->date_of_birth;
+    }
+    if ($request->has('profile_picture')) {
+        $user->profile_picture = $request->profile_picture;
+    }
+    if ($request->has('preferred_job_title')) {
+        $user->preferred_job_title = $request->preferred_job_title;
+    }
+    if ($request->has('description')) {
+        $user->description = $request->description;
+    }
+    if ($request->has('years_of_experience_in_the_industry')) {
+        $user->years_of_experience_in_the_industry = $request->years_of_experience_in_the_industry;
+    }
+    if ($request->has('preferred_work_state')) {
+        $user->preferred_work_state = $request->preferred_work_state;
+    }
+    if ($request->has('preferred_work_zipcode')) {
+        $user->preferred_work_zipcode = $request->preferred_work_zipcode;
+    }
+    if ($request->has('your_experience')) {
+        $user->your_experience = $request->your_experience;
+    }
+    if ($request->has('familiar_with_safety_protocols')) {
+        $user->familiar_with_safety_protocols = $request->familiar_with_safety_protocols;
+    }
 
     // Handle resume upload
     if ($request->hasFile('resume')) {
@@ -535,8 +561,8 @@ public function updateProfileByToken(Request $request)
     // Save the user
     $user->save();
 
-    // Update related models: Delete existing data, then recreate
-    if ($request->has('languages')) {
+       // Update related models: Delete existing data, then recreate
+       if ($request->has('languages')) {
         $user->languages()->delete(); // Delete existing languages
         foreach ($request->languages as $languageData) {
             $user->languages()->create([
@@ -605,6 +631,7 @@ public function updateProfileByToken(Request $request)
 
     return jsonResponse(true, 'Profile updated successfully!', $user);
 }
+
 
 
 
