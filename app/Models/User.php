@@ -158,6 +158,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Resume::class);
     }
 
+    public function resume()
+    {
+        return $this->hasOne(Resume::class)->latest('id');
+    }
 
     public function activateUser()
     {
