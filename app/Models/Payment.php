@@ -13,6 +13,7 @@ class Payment extends Model
         'trxId',
         'checkout_session_id',
         'userid',
+        'hiring_request_id',
         'type',
         'amount',
         'applicant_mobile',
@@ -32,6 +33,11 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'userid');
+    }
+
+    public function hiringRequest()
+    {
+        return $this->belongsTo(HiringRequest::class, 'hiring_request_id');
     }
 
 }

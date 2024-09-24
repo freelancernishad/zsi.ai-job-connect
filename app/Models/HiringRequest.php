@@ -36,4 +36,10 @@ class HiringRequest extends Model
     {
         return $this->hasMany(HiringAssignment::class, 'hiring_request_id');
     }
+
+        // Define the relationship to Payment
+        public function payments()
+        {
+            return $this->hasMany(Payment::class, 'hiring_request_id');
+        }
 }

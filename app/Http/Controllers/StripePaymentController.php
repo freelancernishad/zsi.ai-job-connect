@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Payment;
 use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
+use App\Models\Payment;
+use Illuminate\Http\Request;
+use App\Models\HiringRequest;
 use Illuminate\Support\Facades\Log;
+use Stripe\Checkout\Session as StripeSession;
 
 class StripePaymentController extends Controller
 {
@@ -145,14 +146,39 @@ class StripePaymentController extends Controller
                 'status' => 'approved',
                 'ipnResponse' => json_encode($session),
             ]);
+
+            // Check if payment has a related hiring request
+            if ($payment->hiring_request_id) {
+                // Find the corresponding hiring request
+                $hiringRequest = HiringRequest::find($payment->hiring_request_id);
+                if ($hiringRequest) {
+                    // Update the hiring request status to approved
+                    $hiringRequest->update([
+                        'status' => 'Pending', // Update the status as per your requirements
+                    ]);
+                }
+            }
         } else {
             // Update payment to failed
             $payment->update([
                 'status' => 'failed',
                 'ipnResponse' => json_encode($session),
             ]);
+
+            // Check if payment has a related hiring request
+            if ($payment->hiring_request_id) {
+                // Find the corresponding hiring request
+                $hiringRequest = HiringRequest::find($payment->hiring_request_id);
+                if ($hiringRequest) {
+                    // Update the hiring request status to failed
+                    $hiringRequest->update([
+                        'status' => 'failed', // Update the status as per your requirements
+                    ]);
+                }
+            }
         }
     }
+
 
 
 }

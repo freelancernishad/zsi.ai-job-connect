@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('job_description');
             $table->string('expected_start_date')->nullable();
             $table->decimal('salary_offer', 8, 2);
-            $table->enum('status', ['Pending', 'Assigned', 'Completed'])->default('Pending');
+            $table->enum('status', ['Prepaid','Pending', 'Assigned', 'Completed'])->default('Prepaid');
             $table->timestamps();
         });
     }

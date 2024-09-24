@@ -22,6 +22,7 @@ function stripe($array = [])
         'union' => $array['union'] ?? 'no union',
         'trxId' => $paymentIntent->id, // Use Stripe payment_intent as trxId
         'userid' => $array['userid'],
+        'hiring_request_id' => $array['hiring_request_id'] ?? null,
         'type' => 'stripe',
         'amount' => $array['amount'],
         'applicant_mobile' => $array['applicant_mobile'],

@@ -43,7 +43,7 @@ class HiringProcessController extends Controller
             'expected_start_date' => $request->input('expected_start_date'),
             'salary_offer' => $request->input('salary_offer'),
             'employee_needed' => $request->input('employee_needed'),  // Store employee_needed
-            'status' => 'Pending',
+            'status' => 'Prepaid',
         ]);
 
         // Attach selected employees to the hiring request
@@ -80,6 +80,7 @@ class HiringProcessController extends Controller
             'applicant_mobile' => '1234567890', // This should come from employer's data
             'success_url' => $request->success_url, // Assuming no balance is used here
             'cancel_url' => $request->cancel_url, // Assuming no balance is used here
+            'hiring_request_id' => $hiringRequest->id, // Send the hiring_request_id
         ];
 
         // Trigger the Stripe payment and get the redirect URL
