@@ -44,7 +44,7 @@ function stripe($array = [])
             'price_data' => [
                 'currency' => 'usd',
                 'product_data' => [
-                    'name' => 'Payment for ' . ($array['union'] ?? 'no union'),
+                    'name' => 'Payment for ' . ($array['name'] ?? 'no name'),
                 ],
                 'unit_amount' => $array['amount'] * 100, // Amount in cents
             ],

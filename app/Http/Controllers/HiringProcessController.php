@@ -75,6 +75,7 @@ class HiringProcessController extends Controller
 
         // Payment data
         $paymentData = [
+            'name' => $request->input('job_title'),
             'userid' => $request->input('employer_id'),
             'amount' => $totalHiringCost,
             'applicant_mobile' => '1234567890', // This should come from employer's data
