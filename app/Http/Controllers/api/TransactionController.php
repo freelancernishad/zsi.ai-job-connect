@@ -118,28 +118,23 @@ class TransactionController extends Controller
     {
         // Fetch the approved transaction for a specific hiring request ID, eager load relations
         $transaction = Payment::with([
-                'user.languages',           // Eager load user's languages
-                'user.certifications',      // Eager load user's certifications
-                'user.skills',              // Eager load user's skills
-                'user.education',           // Eager load user's education
-                'user.employmentHistory',   // Eager load user's employment history
-                'user.resume',              // Eager load user's resume
-                'hiringRequest',             // Eager load hiring request related to transaction
-                'empoloyer'
+                'empoloyer.servicesLookingFor',
+                'hiringRequest',
+
             ])
             ->where('status', 'approved') // Filter by approved status
             ->where('hiring_request_id', $hiringRequestId) // Filter by hiring request ID
             ->orderBy('id', 'desc') // Sort by ID in descending order
             ->first(); // Get the first transaction that matches the criteria
-    
+
         // Return response using the jsonResponse function
         if (!$transaction) {
             return jsonResponse(false, "No approved transaction found for hiring request ID: $hiringRequestId.", [], 404);
         }
-    
+
         return jsonResponse(true, "Approved transaction for hiring request ID: $hiringRequestId retrieved successfully.", $transaction);
     }
-    
+
 
 
 }
