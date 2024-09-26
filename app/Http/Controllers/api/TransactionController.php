@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class TransactionController extends Controller
                 'hiringRequest'             // Eager load hiring request related to transaction
             ])
             ->where('status', 'approved') // Filter by approved status
-            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc') // Sort by ID in descending order
             ->paginate($perPage);
 
         // Return response using the jsonResponse function
@@ -67,7 +67,7 @@ class TransactionController extends Controller
             ])
             ->where('status', 'approved') // Filter by approved status
             ->where('type', $type)
-            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc') // Sort by ID in descending order
             ->paginate($perPage);
 
         // Return response using the jsonResponse function
@@ -102,7 +102,7 @@ class TransactionController extends Controller
             ])
             ->where('status', 'approved') // Filter by approved status
             ->where('userid', $userId)
-            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc') // Sort by ID in descending order
             ->paginate($perPage);
 
         // Return response using the jsonResponse function
