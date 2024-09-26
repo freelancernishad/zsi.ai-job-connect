@@ -35,7 +35,7 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'userid');
     }
 
-    public function empoloyer()
+    public function employer()
     {
         return $this->belongsTo(User::class, 'userid');
     }
