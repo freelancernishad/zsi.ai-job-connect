@@ -83,6 +83,8 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/by-user/{userId}', [TransactionController::class, 'getTransactionsByUser']);
     });
 
-    Route::get('/transactions/hiring-request/{hiringRequestId}', [TransactionController::class, 'getTransactionByHiringRequestId']);
+
 
 });
+
+Route::get('/transactions/hiring-request/{hiringRequestId}', [TransactionController::class, 'getTransactionByHiringRequestId']);

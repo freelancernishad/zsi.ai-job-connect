@@ -116,24 +116,40 @@ class TransactionController extends Controller
 
     public function getTransactionByHiringRequestId(Request $request, $hiringRequestId)
     {
+        // Check if the request is from an authenticated admin
+        $isAdmin = auth('admin')->check();
+
+        // Check if the request is from an authenticated API user
+        $isApiUser = auth('api')->check();
+
+        // If neither admin nor API user is authenticated, return an error
+        if (!$isAdmin && !$isApiUser) {
+            return jsonResponse(false, "Unauthenticated.", [], 401);
+        }
+
         // Fetch the approved transaction for a specific hiring request ID, eager load relations
         $transaction = Payment::with([
-                'empoloyer.servicesLookingFor',
+                'employer.servicesLookingFor',
                 'hiringRequest',
-
             ])
             ->where('status', 'approved') // Filter by approved status
             ->where('hiring_request_id', $hiringRequestId) // Filter by hiring request ID
             ->orderBy('id', 'desc') // Sort by ID in descending order
             ->first(); // Get the first transaction that matches the criteria
 
-        // Return response using the jsonResponse function
+        // Return response using the jsonResponse function if no transaction is found
         if (!$transaction) {
             return jsonResponse(false, "No approved transaction found for hiring request ID: $hiringRequestId.", [], 404);
         }
 
-        return jsonResponse(true, "Approved transaction for hiring request ID: $hiringRequestId retrieved successfully.", $transaction);
+        // Return different responses based on who is authenticated (admin or API user)
+        $message = $isAdmin
+            ? "Admin: Approved transaction for hiring request ID: $hiringRequestId retrieved successfully."
+            : "User: Approved transaction for hiring request ID: $hiringRequestId retrieved successfully.";
+
+        return jsonResponse(true, $message, $transaction);
     }
+
 
 
 

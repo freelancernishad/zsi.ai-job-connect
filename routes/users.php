@@ -11,6 +11,7 @@ use App\Http\Controllers\Global\LikeController;
 use App\Http\Controllers\api\ThumbnailController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Auth\users\AuthController;
 use App\Http\Controllers\Global\BrowsingHistoryController;
 use App\Http\Controllers\api\EmployeeHiringPriceController;
@@ -114,6 +115,10 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('users/change-password', [UserController::class, 'changePassword'])
         ->name('users.change_password')
         ->middleware('checkPermission:users.change_password');
+
+
+
+
 
     Route::get('/user-access', function () {
         return 'user access';
