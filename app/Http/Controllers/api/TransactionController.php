@@ -112,4 +112,35 @@ class TransactionController extends Controller
 
         return jsonResponse(true, "Approved transactions for user ID: $userId retrieved successfully.", $transactions);
     }
+
+
+    public function getTransactionsByHiringRequestId(Request $request, $hiringRequestId)
+    {
+        // Determine the number of items per page (default to 10 if not provided)
+        $perPage = $request->query('per_page', 10);
+
+        // Fetch approved transactions for a specific hiring request ID, eager load relations, and paginate them
+        $transactions = Payment::with([
+                'user.languages',           // Eager load user's languages
+                'user.certifications',      // Eager load user's certifications
+                'user.skills',              // Eager load user's skills
+                'user.education',           // Eager load user's education
+                'user.employmentHistory',   // Eager load user's employment history
+                'user.resume',              // Eager load user's resume
+                'hiringRequest'             // Eager load hiring request related to transaction
+            ])
+            ->where('status', 'approved') // Filter by approved status
+            ->where('hiring_request_id', $hiringRequestId) // Filter by hiring request ID
+            ->orderBy('id', 'desc') // Sort by ID in descending order
+            ->paginate($perPage);
+
+        // Return response using the jsonResponse function
+        if ($transactions->isEmpty()) {
+            return jsonResponse(false, "No approved transactions found for hiring request ID: $hiringRequestId.", [], 404);
+        }
+
+        return jsonResponse(true, "Approved transactions for hiring request ID: $hiringRequestId retrieved successfully.", $transactions);
+    }
+
+
 }
