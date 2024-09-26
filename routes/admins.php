@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HiringProcessController;
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Auth\admins\AdminAuthController;
 use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Backend\ServiceController as BackendServiceController;
@@ -73,6 +74,13 @@ Route::middleware('auth:admin')->group(function () {
         Route::post('/', [EmployeeHiringPriceController::class, 'store']); // Create new record
         Route::put('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'update']); // Update a record
         Route::delete('/{employeeHiringPrice}', [EmployeeHiringPriceController::class, 'destroy']); // Delete a record
+    });
+
+
+    Route::prefix('transactions')->group(function () {
+        Route::get('/all', [TransactionController::class, 'getAllTransactions']);
+        Route::get('/by-type', [TransactionController::class, 'getTransactionsByType']);
+        Route::get('/by-user/{userId}', [TransactionController::class, 'getTransactionsByUser']);
     });
 
 

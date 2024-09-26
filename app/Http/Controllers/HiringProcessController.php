@@ -82,6 +82,7 @@ class HiringProcessController extends Controller
             'success_url' => $request->success_url, // Assuming no balance is used here
             'cancel_url' => $request->cancel_url, // Assuming no balance is used here
             'hiring_request_id' => $hiringRequest->id, // Send the hiring_request_id
+            'type' => "Hiring-Request"
         ];
 
         // Trigger the Stripe payment and get the redirect URL
