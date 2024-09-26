@@ -124,7 +124,8 @@ class TransactionController extends Controller
                 'user.education',           // Eager load user's education
                 'user.employmentHistory',   // Eager load user's employment history
                 'user.resume',              // Eager load user's resume
-                'hiringRequest'             // Eager load hiring request related to transaction
+                'hiringRequest',             // Eager load hiring request related to transaction
+                'empoloyer'
             ])
             ->where('status', 'approved') // Filter by approved status
             ->where('hiring_request_id', $hiringRequestId) // Filter by hiring request ID

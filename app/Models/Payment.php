@@ -35,6 +35,11 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'userid');
     }
 
+    public function empoloyer()
+    {
+        return $this->belongsTo(User::class, 'userid');
+    }
+
     public function hiringRequest()
     {
         return $this->belongsTo(HiringRequest::class, 'hiring_request_id');
