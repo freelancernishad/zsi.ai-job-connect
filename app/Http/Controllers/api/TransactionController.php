@@ -114,13 +114,10 @@ class TransactionController extends Controller
     }
 
 
-    public function getTransactionsByHiringRequestId(Request $request, $hiringRequestId)
+    public function getTransactionByHiringRequestId(Request $request, $hiringRequestId)
     {
-        // Determine the number of items per page (default to 10 if not provided)
-        $perPage = $request->query('per_page', 10);
-
-        // Fetch approved transactions for a specific hiring request ID, eager load relations, and paginate them
-        $transactions = Payment::with([
+        // Fetch the approved transaction for a specific hiring request ID, eager load relations
+        $transaction = Payment::with([
                 'user.languages',           // Eager load user's languages
                 'user.certifications',      // Eager load user's certifications
                 'user.skills',              // Eager load user's skills
@@ -132,15 +129,16 @@ class TransactionController extends Controller
             ->where('status', 'approved') // Filter by approved status
             ->where('hiring_request_id', $hiringRequestId) // Filter by hiring request ID
             ->orderBy('id', 'desc') // Sort by ID in descending order
-            ->paginate($perPage);
-
+            ->first(); // Get the first transaction that matches the criteria
+    
         // Return response using the jsonResponse function
-        if ($transactions->isEmpty()) {
-            return jsonResponse(false, "No approved transactions found for hiring request ID: $hiringRequestId.", [], 404);
+        if (!$transaction) {
+            return jsonResponse(false, "No approved transaction found for hiring request ID: $hiringRequestId.", [], 404);
         }
-
-        return jsonResponse(true, "Approved transactions for hiring request ID: $hiringRequestId retrieved successfully.", $transactions);
+    
+        return jsonResponse(true, "Approved transaction for hiring request ID: $hiringRequestId retrieved successfully.", $transaction);
     }
+    
 
 
 }
