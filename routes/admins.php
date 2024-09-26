@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HiringProcessController;
 
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\Auth\admins\AdminAuthController;
 use App\Http\Controllers\api\EmployeeHiringPriceController;
 use App\Http\Controllers\Backend\ServiceController as BackendServiceController;
