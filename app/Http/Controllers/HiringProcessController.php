@@ -263,7 +263,7 @@ class HiringProcessController extends Controller
 
 
 
-            'hiringAssignments'
+            'hiringAssignments.employee'
         ])->where('status', $step)->paginate($perPage); // Adjust pagination as needed
 
         return response()->json([
