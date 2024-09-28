@@ -246,8 +246,11 @@ class HiringProcessController extends Controller
      * @param string $step
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getRequestsByStepWithPagination($step)
+    public function getRequestsByStepWithPagination(Request $request,$step)
     {
+
+        $perPage = $request->query('per_page', 10);
+
         $requests = HiringRequest::with([
             'employer.servicesLookingFor',
 
@@ -261,7 +264,7 @@ class HiringProcessController extends Controller
 
 
             'hiringAssignments'
-        ])->where('status', $step)->paginate(10); // Adjust pagination as needed
+        ])->where('status', $step)->paginate($perPage); // Adjust pagination as needed
 
         return response()->json([
             'success' => true,
