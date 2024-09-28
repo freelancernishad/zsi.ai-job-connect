@@ -7,6 +7,7 @@ use App\Models\HiringRequest;
 use App\Models\HiringSelection;
 use App\Models\HiringAssignment;
 use App\Models\EmployeeHiringPrice;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Admin; // Ensure this model exists
 use App\Models\User; // Assuming Employee is also a User
 
@@ -106,12 +107,20 @@ class HiringProcessController extends Controller
      */
     public function assignEmployee(Request $request, $id)
 {
-    $request->validate([
+
+
+    $validator = Validator::make($request->all(), [
         'assigned_employee_id' => 'required|array',
         'assigned_employee_id.*' => 'exists:users,id',
         'assignment_note' => 'nullable|string',
         'assignment_date' => 'required',
     ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
+    }
+
+
 
     $hiringRequest = HiringRequest::findOrFail($id);
 
