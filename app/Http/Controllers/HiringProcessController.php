@@ -262,8 +262,12 @@ class HiringProcessController extends Controller
             'selectedEmployees.employee.resume',
 
 
-
-            'hiringAssignments.employee'
+            'hiringAssignments.employee.languages',
+            'hiringAssignments.employee.certifications',
+            'hiringAssignments.employee.skills',
+            'hiringAssignments.employee.education',
+            'hiringAssignments.employee.employmentHistory',
+            'hiringAssignments.employee.resume',
         ])->where('status', $step)->paginate($perPage); // Adjust pagination as needed
 
         return response()->json([
