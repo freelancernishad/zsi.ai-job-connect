@@ -110,7 +110,7 @@ class HiringProcessController extends Controller
         'assigned_employee_id' => 'required|array',
         'assigned_employee_id.*' => 'exists:users,id',
         'assignment_note' => 'nullable|string',
-        'assignment_date' => 'required|date',
+        'assignment_date' => 'required',
     ]);
 
     $hiringRequest = HiringRequest::findOrFail($id);
