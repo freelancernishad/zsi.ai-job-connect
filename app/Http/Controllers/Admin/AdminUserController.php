@@ -45,9 +45,9 @@ class AdminUserController extends Controller
                             ->get();
 
         // Extract user details from payments
-        $users = $payments->map(function ($payment) {
-            return $payment->user; // Assuming 'user' is a relation on Payment model
-        });
+        // $users = $payments->map(function ($payment) {
+        //     return $payment; // Assuming 'user' is a relation on Payment model
+        // });
 
         return response()->json([
             'success' => true,
