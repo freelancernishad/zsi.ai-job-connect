@@ -385,51 +385,55 @@ class UserController extends Controller
 
 
 
-public function getEmployeesYouMayLike(Request $request)
-{
+   public function getEmployeesYouMayLike(Request $request)
+   {
+       // Get the logged-in user (employer)
+       $user = auth()->user();
+   
+       // Ensure the user is an employer
+       if (!$user || $user->role !== 'employer') {
+           return response()->json([
+               'success' => false,
+               'message' => 'User must be an employer.',
+               'data' => null,
+           ], 403);
+       }
 
+       // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
+       $lookingServiceIds = $user->looking_service_id;
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Employees retrieved successfully.',
-        'data' => getRandomActiveUsers(),
-    ], 200);
+       if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
+           return response()->json([
+               'success' => false,
+               'message' => 'No valid preferred services found for the employer.',
+               'data' => null,
+           ], 404);
+       }
 
-    // Get the logged-in user (employer)
-    $user = auth()->user();
+       // Find all employees whose preferred_job_title matches any of the employer's looking services
+       $employees = User::where('role', 'employee')
+           ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
+           ->where('id', '!=', $user->id) // Exclude the logged-in user (employer)
+           ->with('preferredJobTitle') // Include related job title/service details
+           ->get();
 
-    // Ensure the user is an employer
-    if (!$user || $user->role !== 'employer') {
-        return response()->json([
-            'success' => false,
-            'message' => 'User must be an employer.',
-            'data' => null,
-        ], 403);
-    }
+       // Check if no employees were found
+       if ($employees->isEmpty()) {
+           // Return random active users if no employees match the criteria
+           return response()->json([
+               'success' => true,
+               'message' => 'No matching employees found, returning random active users.',
+               'data' => getRandomActiveUsers(),
+           ], 200);
+       }
 
-    // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
-    $lookingServiceIds = $user->looking_service_id;
+       return response()->json([
+           'success' => true,
+           'message' => 'Employees retrieved successfully.',
+           'data' => $employees,
+       ], 200);
+   }
 
-    if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No valid preferred services found for the employer.',
-            'data' => null,
-        ], 404);
-    }
-
-    // Find all employees whose preferred_job_title matches any of the employer's looking services
-    $employees = User::where('role', 'employee')
-        ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
-        ->with('preferredJobTitle') // Include related job title/service details
-        ->get();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Employees retrieved successfully.',
-        'data' => $employees,
-    ], 200);
-}
 
 
 

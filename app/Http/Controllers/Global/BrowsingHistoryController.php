@@ -10,14 +10,18 @@ use App\Models\Service;
 
 class BrowsingHistoryController extends Controller
 {
+
+
     public function recommendUsersWithFilters(Request $request)
     {
         $userId = auth()->id();  // Get the ID of the currently logged-in user
 
-        // Get recently viewed users by this user, sorted by how recently they were viewed, and only active ones
+        // Get recently viewed users by this user, sorted by how recently they were viewed, only active ones, and with role "EMPLOYEE"
         $recentlyViewedUsers = BrowsingHistory::where('user_id', $userId)
-            ->with(['viewedUser' => function ($query) {
+            ->with(['viewedUser' => function ($query) use ($userId) {
                 $query->where('status', 'active')  // Fetch only active users
+                    ->where('role', 'EMPLOYEE')    // Fetch only users with role "EMPLOYEE"
+                    ->where('id', '!=', $userId)   // Exclude the current authenticated user
                     ->with(['thumbnail']);
             }])
             ->orderBy('viewed_at', 'desc')
@@ -28,12 +32,12 @@ class BrowsingHistoryController extends Controller
             ->unique('id')  // Ensure uniqueness by user ID
             ->values();  // Re-index the collection to remove the original keys
 
-        // If pagination is requested, apply it to the recently viewed users
+        // Apply pagination if requested
         if ($request->has('per_page')) {
             $perPage = (int) $request->get('per_page');
             $finalRecommendations = $recentlyViewedUsers->forPage(1, $perPage);  // Paginate the collection manually
         }
-        // If limit is requested, limit the number of results
+        // Apply limit if requested
         elseif ($request->has('limit')) {
             $limit = (int) $request->get('limit');
             $finalRecommendations = $recentlyViewedUsers->take($limit);
@@ -50,6 +54,7 @@ class BrowsingHistoryController extends Controller
             'data' => $finalRecommendations->isNotEmpty() ? $finalRecommendations->toArray() : getRandomActiveUsers(),
         ]);
     }
+
 
 
 

@@ -16,23 +16,25 @@ class AdminUserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function getUsersWithPendingPayments()
-    {
-        $payments = Payment::where('type', 'activation')
-                            ->where('status', 'pending')
-                            ->with('user') // Assuming you have a relationship set up
-                            ->get();
+{
+    $payments = Payment::where('type', 'activation')
+                        ->where('status', 'pending')
+                        ->with('user') // Assuming you have a relationship set up
+                        ->orderBy('created_at', 'desc') // Sorting by latest to oldest
+                        ->get();
 
-        // Extract user details from payments
-        $users = $payments->map(function ($payment) {
-            return $payment->user; // Assuming 'user' is a relation on Payment model
-        });
+    // Extract user details from payments
+    $users = $payments->map(function ($payment) {
+        return $payment->user; // Assuming 'user' is a relation on Payment model
+    });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Users with pending payments retrieved successfully.',
-            'data' => $payments,
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Users with pending payments retrieved successfully.',
+        'data' => $payments,
+    ]);
+}
+
 
     /**
      * Approve payment and activate the user.
