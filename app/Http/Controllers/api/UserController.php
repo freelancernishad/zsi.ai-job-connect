@@ -391,7 +391,7 @@ class UserController extends Controller
        $user = auth()->user();
    
        // Ensure the user is an employer
-       if (!$user || $user->role !== 'employer') {
+       if (!$user || $user->role !== 'EMPLOYER') {
            return response()->json([
                'success' => false,
                'message' => 'User must be an employer.',
