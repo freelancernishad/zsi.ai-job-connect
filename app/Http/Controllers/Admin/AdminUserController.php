@@ -52,7 +52,7 @@ class AdminUserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Users with pending payments retrieved successfully.',
-            'data' => $users, // Returning the users
+            'data' => $payments, // Returning the users
         ]);
     }
 
