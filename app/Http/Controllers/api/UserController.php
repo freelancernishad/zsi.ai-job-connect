@@ -400,7 +400,7 @@ class UserController extends Controller
        }
 
        // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
-       $lookingServiceIds = $user->looking_service_id;
+      return $lookingServiceIds = $user->looking_service_id;
 
        if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
            return response()->json([
