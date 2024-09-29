@@ -389,7 +389,7 @@ class UserController extends Controller
    {
        // Get the logged-in user (employer)
        $user = auth()->user();
-
+   
        // Ensure the user is an employer
        if (!$user || $user->role !== 'EMPLOYER') {
            return response()->json([
@@ -398,25 +398,26 @@ class UserController extends Controller
                'data' => null,
            ], 403);
        }
-
-       // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
-      return $lookingServiceIds = $user->lookingServices;
-
-       if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
+   
+       // Get the employer's preferred job titles (services they're looking for)
+       $lookingServiceIds = $user->lookingServices->pluck('service_id')->toArray(); // Extract service_id values
+   
+       // Check if the employer has valid preferred services
+       if (empty($lookingServiceIds)) {
            return response()->json([
                'success' => false,
                'message' => 'No valid preferred services found for the employer.',
                'data' => null,
            ], 404);
        }
-
+   
        // Find all employees whose preferred_job_title matches any of the employer's looking services
        $employees = User::where('role', 'employee')
            ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
            ->where('id', '!=', $user->id) // Exclude the logged-in user (employer)
            ->with('preferredJobTitle') // Include related job title/service details
            ->get();
-
+   
        // Check if no employees were found
        if ($employees->isEmpty()) {
            // Return random active users if no employees match the criteria
@@ -426,13 +427,14 @@ class UserController extends Controller
                'data' => getRandomActiveUsers(),
            ], 200);
        }
-
+   
        return response()->json([
            'success' => true,
            'message' => 'Employees retrieved successfully.',
            'data' => $employees,
        ], 200);
    }
+   
 
 
 
