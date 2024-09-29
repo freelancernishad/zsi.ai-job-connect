@@ -383,12 +383,11 @@ class UserController extends Controller
 
 
 
-
    public function getEmployeesYouMayLike(Request $request)
    {
        // Get the logged-in user (employer)
        $user = auth()->user();
-
+   
        // Ensure the user is an employer
        if (!$user || $user->role !== 'EMPLOYER') {
            return response()->json([
@@ -397,10 +396,10 @@ class UserController extends Controller
                'data' => null,
            ], 403);
        }
-
+   
        // Get the employer's preferred job titles (services they're looking for)
        $lookingServiceIds = $user->lookingServices->pluck('service_id')->toArray(); // Extract service_id values
-
+   
        // Check if the employer has valid preferred services
        if (empty($lookingServiceIds)) {
            return response()->json([
@@ -409,31 +408,35 @@ class UserController extends Controller
                'data' => null,
            ], 404);
        }
-
+   
+       // Get per_page from request, if not provided default to 10
+       $perPage = $request->get('per_page', 10);
+   
        // Find all employees whose preferred_job_title matches any of the employer's looking services and are active
        $employees = User::where('role', 'employee')
            ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
            ->where('status', 'active') // Only active employees
            ->where('id', '!=', $user->id) // Exclude the logged-in user (employer)
-           ->with('thumbnail') 
-           ->get();
-
-       // Check if no employees were found
-       if ($employees->isEmpty()) {
-           // Return random active users if no employees match the criteria
-           return response()->json([
-               'success' => true,
-               'message' => 'No matching employees found, returning random active users.',
-               'data' => getRandomActiveUsers(),
-           ], 200);
-       }
-
+           ->with('thumbnail') // Include thumbnail relationship if exists
+           ->paginate($perPage); // Apply pagination with per_page value
+   
+    //    // Check if no employees were found
+    //    if ($employees->isEmpty()) {
+    //        // Return random active users if no employees match the criteria
+    //        return response()->json([
+    //            'success' => true,
+    //            'message' => 'No matching employees found, returning random active users.',
+    //            'data' => getRandomActiveUsers(),
+    //        ], 200);
+    //    }
+   
        return response()->json([
            'success' => true,
            'message' => 'Employees retrieved successfully.',
            'data' => $employees,
        ], 200);
    }
+   
 
 
 
