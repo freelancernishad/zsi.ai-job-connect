@@ -11,7 +11,8 @@ class ServiceController extends Controller
     // Get all services
     public function index()
     {
-        $services = Service::all();
+        // Fetch all services and sort by 'name' alphabetically
+        $services = Service::orderBy('name', 'asc')->get();
 
         return response()->json([
             'success' => true,
@@ -19,6 +20,7 @@ class ServiceController extends Controller
             'data' => $services
         ], 200);
     }
+
 
     // Get a single service by ID
     public function show($id)
