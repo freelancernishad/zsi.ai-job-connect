@@ -389,7 +389,7 @@ class UserController extends Controller
    {
        // Get the logged-in user (employer)
        $user = auth()->user();
-   
+
        // Ensure the user is an employer
        if (!$user || $user->role !== 'EMPLOYER') {
            return response()->json([
@@ -400,7 +400,7 @@ class UserController extends Controller
        }
 
        // Get the employer's preferred job titles (services they're looking for) - assuming this is an array
-      return $lookingServiceIds = $user->looking_service_id;
+      return $lookingServiceIds = $user->lookingServices;
 
        if (!$lookingServiceIds || !is_array($lookingServiceIds)) {
            return response()->json([
