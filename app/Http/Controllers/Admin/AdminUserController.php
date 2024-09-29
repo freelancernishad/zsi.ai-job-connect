@@ -17,21 +17,27 @@ class AdminUserController extends Controller
      */
     public function getUsersWithPendingPayments(Request $request)
     {
-        // Get the name and email filters from the request, if they exist
-        $name = $request->input('name');
-        $email = $request->input('email');
+        // Get the search parameter from the request, if it exists
+        $search = $request->input('search');
+
+        // Initialize a search variable for use in the query
+        $searchTerm = null;
+
+        // Set search term if it exists
+        if (!empty($search)) {
+            $searchTerm = trim($search); // Clean the search input
+        }
 
         // Query payments with pending status and type 'activation'
         $payments = Payment::where('type', 'activation')
                             ->where('status', 'pending')
-                            ->whereHas('user', function ($query) use ($name, $email) {
-                                // Apply name filter only if it exists
-                                if (!empty($name)) {
-                                    $query->where('name', 'like', '%' . $name . '%');
-                                }
-                                // Apply email filter only if it exists
-                                if (!empty($email)) {
-                                    $query->where('email', 'like', '%' . $email . '%');
+                            ->whereHas('user', function ($query) use ($searchTerm) {
+                                // Apply search filter if it exists, looking in both name and email
+                                if (!empty($searchTerm)) {
+                                    $query->where(function ($query) use ($searchTerm) {
+                                        $query->where('name', 'like', '%' . $searchTerm . '%')
+                                              ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                                    });
                                 }
                             })
                             ->with('user') // Assuming the relationship is set up
@@ -49,6 +55,7 @@ class AdminUserController extends Controller
             'data' => $users, // Returning the users
         ]);
     }
+
 
 
 
