@@ -15,25 +15,41 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getUsersWithPendingPayments()
-{
-    $payments = Payment::where('type', 'activation')
-                        ->where('status', 'pending')
-                        ->with('user') // Assuming you have a relationship set up
-                        ->orderBy('created_at', 'desc') // Sorting by latest to oldest
-                        ->get();
+    public function getUsersWithPendingPayments(Request $request)
+    {
+        // Get the name and email filters from the request, if they exist
+        $name = $request->input('name');
+        $email = $request->input('email');
 
-    // Extract user details from payments
-    $users = $payments->map(function ($payment) {
-        return $payment->user; // Assuming 'user' is a relation on Payment model
-    });
+        // Query payments with pending status and type 'activation'
+        $payments = Payment::where('type', 'activation')
+                            ->where('status', 'pending')
+                            ->whereHas('user', function ($query) use ($name, $email) {
+                                // Apply name filter only if it exists
+                                if (!empty($name)) {
+                                    $query->where('name', 'like', '%' . $name . '%');
+                                }
+                                // Apply email filter only if it exists
+                                if (!empty($email)) {
+                                    $query->where('email', 'like', '%' . $email . '%');
+                                }
+                            })
+                            ->with('user') // Assuming the relationship is set up
+                            ->orderBy('created_at', 'desc') // Sort by latest to oldest
+                            ->get();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Users with pending payments retrieved successfully.',
-        'data' => $payments,
-    ]);
-}
+        // Extract user details from payments
+        $users = $payments->map(function ($payment) {
+            return $payment->user; // Assuming 'user' is a relation on Payment model
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Users with pending payments retrieved successfully.',
+            'data' => $users, // Returning the users
+        ]);
+    }
+
 
 
     /**
