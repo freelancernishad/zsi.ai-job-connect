@@ -29,10 +29,19 @@ class EmployeeHiringPrice extends Model
      */
     public function calculateTotalPrice($numberOfEmployees)
     {
-        // Ensure the number of employees is within the defined range
-        $numberOfEmployees = max($this->min_number_of_employees, min($numberOfEmployees, $this->max_number_of_employees));
 
-        return $numberOfEmployees * $this->price_per_employee;
+
+        // Retrieve the hiring price where the number of employees is within the range
+        $hiringPrice = EmployeeHiringPrice::where('min_number_of_employees', '<=', $numberOfEmployees)
+                                        ->where('max_number_of_employees', '>=', $numberOfEmployees)
+                                        ->first();
+
+        if ($hiringPrice) {
+          return  $totalPrice = $hiringPrice->price_per_employee * $numberOfEmployees;
+
+        } else {
+           return 1;
+        }
     }
 
     /**
