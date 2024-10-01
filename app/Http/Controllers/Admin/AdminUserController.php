@@ -151,55 +151,71 @@ class AdminUserController extends Controller
     }
 
 
-    public function getUsersBySearch(Request $request)
+    public function getUsersByRole(Request $request)
     {
-        $searchTerm = $request->query('search');
-        $role = $request->query('role', 'employee'); // Default to 'employee'
-        $perPage = $request->query('per_page', 15); // Default per_page to 15
+        // Get the search parameter for global search
+        $searchQuery = $request->query('search'); // This will be the search term (name, email, phone_number)
 
-        // Build the query
+        // Get the role parameter (optional)
+        $role = $request->query('role'); // Get the role parameter
+
+        // Get the per_page parameter with a default of 10
+        $perPage = $request->query('per_page', 10);
+
+        // Start the query to retrieve users
         $query = User::query();
 
-        // Global search
-        if ($searchTerm) {
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%")
-                  ->orWhere('phone_number', 'like', "%{$searchTerm}%");
+        // Apply global search filters if a search term is provided
+        if ($searchQuery) {
+            $query->where(function($q) use ($searchQuery) {
+                $q->where('name', 'LIKE', '%' . $searchQuery . '%')
+                  ->orWhere('email', 'LIKE', '%' . $searchQuery . '%')
+                  ->orWhere('phone_number', 'LIKE', '%' . $searchQuery . '%');
             });
         }
 
-        // Check role and apply appropriate status filters
-        if ($role == 'EMPLOYEE') {
-            $query->where('status', 'active')
-            ->where('role', $role); // Only show active employees
-
-            $relationships = [
-                'languages',
-                'certifications',
-                'skills',
-                'education',
-                'employmentHistory',
-                'resume',
-                'thumbnail'
-            ];
-        } elseif ($role == 'EMPLOYER') {
-            $query->where('employer_status', 'active') // Only show active employers
-                  ->where('role', $role); // Ensure only employers are queried
-
-                  $relationships = [
-                    'servicesLookingFor',
-                ];
-
-
+        // Apply role-based filters if a role is provided
+        if ($role) {
+            if ($role === 'EMPLOYEE') {
+                $query->where('role', 'EMPLOYEE')->where('status', 'active');
+            } elseif ($role === 'EMPLOYER') {
+                $query->where('role', 'EMPLOYER')->where('employer_status', 'active');
+            }
+        } else {
+            // If no role is specified, filter by active employees and employers
+            $query->where(function($q) {
+                $q->where('role', 'EMPLOYEE')->where('status', 'active')
+                  ->orWhere(function($subQuery) {
+                      $subQuery->where('role', 'EMPLOYER')->where('employer_status', 'active');
+                  });
+            });
         }
 
+        // Retrieve the users with eager loading and pagination
+        $users = $query->with([
+            'languages',
+            'certifications',
+            'skills',
+            'education',
+            'employmentHistory',
+            'resume',
+            'thumbnail',
+            'servicesLookingFor'
+        ])->paginate($perPage);
 
-
-        $users = $query->with($relationships)->paginate($perPage);
-
-        return jsonResponse(true, "Users retrieved successfully.", $users);
+        // Build response using jsonResponse
+        return jsonResponse(true, 'Users retrieved successfully.', $users);
     }
+
+
+
+
+
+
+
+
+
+
 
 
 

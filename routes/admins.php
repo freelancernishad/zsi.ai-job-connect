@@ -84,7 +84,7 @@ Route::middleware('auth:admin')->group(function () {
     });
 
 
-    Route::get('admin/users/search', [AdminUserController::class, 'getUsersBySearch']);
+    Route::get('admin/users/search', [AdminUserController::class, 'getUsersByRole']);
 
 });
 
