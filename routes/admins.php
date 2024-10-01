@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HiringProcessController;
+use App\Http\Controllers\api\UserController;
 
+use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\Auth\admins\AdminAuthController;
