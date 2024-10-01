@@ -17,6 +17,28 @@ class UserController extends Controller
 
 
 
+    public function updateAllUserNames()
+    {
+        // Get all users from the database
+        $users = User::all();
+
+        // Loop through each user
+        foreach ($users as $user) {
+            // Combine first_name and last_name
+            $name = $user->first_name . ' ' . $user->last_name;
+
+            // Update the name field
+            $user->name = $name;
+
+            // Save the updated user
+            $user->save();
+        }
+
+        return jsonResponse(true, 'All user names updated successfully!');
+    }
+
+
+
     public function registerStep2(Request $request)
     {
         // Get the authenticated user via JWT
@@ -97,7 +119,10 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        $name = $request->first_name.' '.$request->last_name;
         // Update the user's fields
+        $user->name = $name ?? $user->name;
+
         $user->first_name = $request->first_name ?? $user->first_name;
         $user->last_name = $request->last_name ?? $user->last_name;
         $user->phone_number = $request->phone_number ?? $user->phone_number;
@@ -387,7 +412,7 @@ class UserController extends Controller
    {
        // Get the logged-in user (employer)
        $user = auth()->user();
-   
+
        // Ensure the user is an employer
        if (!$user || $user->role !== 'EMPLOYER') {
            return response()->json([
@@ -396,10 +421,10 @@ class UserController extends Controller
                'data' => null,
            ], 403);
        }
-   
+
        // Get the employer's preferred job titles (services they're looking for)
        $lookingServiceIds = $user->lookingServices->pluck('service_id')->toArray(); // Extract service_id values
-   
+
        // Check if the employer has valid preferred services
        if (empty($lookingServiceIds)) {
            return response()->json([
@@ -408,10 +433,10 @@ class UserController extends Controller
                'data' => null,
            ], 404);
        }
-   
+
        // Get per_page from request, if not provided default to 10
        $perPage = $request->get('per_page', 10);
-   
+
        // Find all employees whose preferred_job_title matches any of the employer's looking services and are active
        $employees = User::where('role', 'employee')
            ->whereIn('preferred_job_title', $lookingServiceIds) // Handle multiple services
@@ -419,7 +444,7 @@ class UserController extends Controller
            ->where('id', '!=', $user->id) // Exclude the logged-in user (employer)
            ->with('thumbnail') // Include thumbnail relationship if exists
            ->paginate($perPage); // Apply pagination with per_page value
-   
+
     //    // Check if no employees were found
     //    if ($employees->isEmpty()) {
     //        // Return random active users if no employees match the criteria
@@ -429,14 +454,14 @@ class UserController extends Controller
     //            'data' => getRandomActiveUsers(),
     //        ], 200);
     //    }
-   
+
        return response()->json([
            'success' => true,
            'message' => 'Employees retrieved successfully.',
            'data' => $employees,
        ], 200);
    }
-   
+
 
 
 
@@ -517,6 +542,15 @@ public function updateProfileByToken(Request $request)
     if ($validator->fails()) {
         return jsonResponse(false, 'Validation errors occurred.', null, 400, ['errors' => $validator->errors()]);
     }
+
+
+    // Combine first_name and last_name dynamically
+    $firstName = $request->has('first_name') ? $request->first_name : $user->first_name;
+    $lastName = $request->has('last_name') ? $request->last_name : $user->last_name;
+    $name = $firstName . ' ' . $lastName;
+
+    // Update the user's name
+    $user->name = $name;
 
     // Update the user's fields
     if ($request->has('first_name')) {
