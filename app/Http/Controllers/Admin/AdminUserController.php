@@ -150,4 +150,58 @@ class AdminUserController extends Controller
         ]);
     }
 
+
+    public function getUsersBySearch(Request $request)
+    {
+        $searchTerm = $request->query('search');
+        $role = $request->query('role', 'employee'); // Default to 'employee'
+        $perPage = $request->query('per_page', 15); // Default per_page to 15
+
+        // Build the query
+        $query = User::query();
+
+        // Global search
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone_number', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Check role and apply appropriate status filters
+        if ($role == 'EMPLOYEE') {
+            $query->where('status', 'active')
+            ->where('role', $role); // Only show active employees
+
+            $relationships = [
+                'languages',
+                'certifications',
+                'skills',
+                'education',
+                'employmentHistory',
+                'resume',
+                'thumbnail'
+            ];
+        } elseif ($role == 'EMPLOYER') {
+            $query->where('employer_status', 'active') // Only show active employers
+                  ->where('role', $role); // Ensure only employers are queried
+
+                  $relationships = [
+                    'servicesLookingFor',
+                ];
+
+
+        }
+
+
+
+        $users = $query->with($relationships)->paginate($perPage);
+
+        return jsonResponse(true, "Users retrieved successfully.", $users);
+    }
+
+
+
+
 }
