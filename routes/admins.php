@@ -67,6 +67,9 @@ Route::middleware('auth:admin')->group(function () {
 
 
     Route::post('/hiring-request/{id}/assign', [HiringProcessController::class, 'assignEmployee']);
+
+  Route::post('/hiring-assignments/{id}/release', [HiringProcessController::class, 'releaseEmployee']);
+
     Route::get('/hiring-request/{id}', [HiringProcessController::class, 'getHiringRequest']);
 
 

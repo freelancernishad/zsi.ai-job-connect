@@ -34,8 +34,18 @@ class HiringRequest extends Model
     // Define the relationship to HiringAssignments
     public function hiringAssignments()
     {
-        return $this->hasMany(HiringAssignment::class, 'hiring_request_id');
+        return $this->hasMany(HiringAssignment::class, 'hiring_request_id')
+                    ->where('status', 'Assigned'); // Only fetch assignments with status "Assigned"
     }
+
+
+       // Custom relationship to released HiringAssignments
+       public function releasedHiringAssignments()
+       {
+           return $this->hasMany(HiringAssignment::class, 'hiring_request_id')
+                       ->where('status', 'released');  // Filters only released assignments
+       }
+
 
         // Define the relationship to Payment
         public function payments()

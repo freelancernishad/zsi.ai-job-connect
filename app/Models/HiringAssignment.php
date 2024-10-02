@@ -35,4 +35,11 @@ class HiringAssignment extends Model
     {
         return $this->belongsTo(User::class, 'assigned_employee_id');
     }
+
+        // Method to release the employee (end the assignment)
+        public function releaseEmployee()
+        {
+            $this->status = 'released';  // or 'ended' or whatever your release status is
+            $this->save();
+        }
 }

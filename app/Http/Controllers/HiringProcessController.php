@@ -158,6 +158,20 @@ class HiringProcessController extends Controller
 }
 
 
+    public function releaseEmployee($id)
+    {
+        // Find the HiringAssignment by its id
+        $assignment = HiringAssignment::findOrFail($id);
+
+        // Release the employee from the assignment
+        $assignment->releaseEmployee();
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee has been released from the assignment.',
+        ], 200);
+    }
 
     /**
      * Get details of a hiring request including assigned employee.
@@ -268,6 +282,15 @@ class HiringProcessController extends Controller
             'hiringAssignments.employee.education',
             'hiringAssignments.employee.employmentHistory',
             'hiringAssignments.employee.resume',
+
+
+            'releasedHiringAssignments.employee.languages',
+            'releasedHiringAssignments.employee.certifications',
+            'releasedHiringAssignments.employee.skills',
+            'releasedHiringAssignments.employee.education',
+            'releasedHiringAssignments.employee.employmentHistory',
+            'releasedHiringAssignments.employee.resume',
+
         ])->where('status', $step)->paginate($perPage); // Adjust pagination as needed
 
         return response()->json([
