@@ -56,11 +56,29 @@ class AuthController extends Controller
         $user->email_verification_hash = $verificationToken;
         $user->save();
 
+
+
+
+
         // Build the new verification URL
-        $verify_url = $request->verify_url;
+        // $verify_url = $request->verify_url;
 
         // Resend the verification email
-        $user->notify(new VerifyEmail($user, $verify_url));
+        // $user->notify(new VerifyEmail($user, $verify_url));
+
+
+
+
+        try {
+            $verify_url = $request->verify_url;
+            $user->notify(new VerifyEmail($user, $verify_url));
+        } catch (\Exception $e) {
+            // If email sending fails, the process will continue without any error
+        }
+
+
+
+
 
         return response()->json([
             'success' => true,
@@ -282,11 +300,22 @@ public function checkToken(Request $request)
 
             $user->save();
 
-            // Generate verification URL
-            $verify_url = $request->verify_url;
+            // // Generate verification URL
+            // $verify_url = $request->verify_url;
 
-            // Send email verification
-            $user->notify(new VerifyEmail($user, $verify_url));
+            // // Send email verification
+            // $user->notify(new VerifyEmail($user, $verify_url));
+
+
+
+            try {
+                $verify_url = $request->verify_url;
+                $user->notify(new VerifyEmail($user, $verify_url));
+            } catch (\Exception $e) {
+                // If email sending fails, the process will continue without any error
+            }
+
+
         }
 
         // Build the payload including the username and step
