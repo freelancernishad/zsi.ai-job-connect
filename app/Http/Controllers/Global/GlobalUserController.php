@@ -31,6 +31,10 @@ class GlobalUserController extends Controller
             'thumbnail'
         ]);
 
+            // Apply additional filters for role and status
+        $query->where('role', 'EMPLOYEE')
+        ->where('status', 'active');
+
         // Check if per_page parameter exists for pagination
         if ($request->has('per_page')) {
             // Paginate based on the per_page parameter
