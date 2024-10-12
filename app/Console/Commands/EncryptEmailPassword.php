@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 
 class EncryptEmailPassword extends Command
 {
+    // php artisan encrypt:email-password 100%job360
     protected $signature = 'encrypt:email-password {password}';
     protected $description = 'Encrypt the email password and display it.';
 
