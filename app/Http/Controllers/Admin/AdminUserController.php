@@ -115,7 +115,7 @@ class AdminUserController extends Controller
             ], 404);
         }
 
-        // Check if the payment status is not already canceled
+        // Check if the payment status is already canceled
         if ($payment->status === 'canceled') {
             return response()->json([
                 'success' => false,
@@ -131,16 +131,26 @@ class AdminUserController extends Controller
             ], 400);
         }
 
+        // Find the associated user
+        $user = User::find($payment->userid);
+
+        // If the user exists and their status is 'active'
+        if ($user && $user->status === 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The payment cannot be canceled because the user is already active. Once a user is activated, canceling the payment is not allowed.',
+            ], 400);
+        }
+
         // Update payment status to canceled
         $payment->update(['status' => 'canceled']);
 
-        // Optionally, you can deactivate the user or perform other actions if needed
-        // For example, if the payment is associated with a user:
-        $user = User::find($payment->userid);
+        // If the user exists and is not active, update the user's status
         if ($user) {
             $user->update([
                 'status' => 'inactive',
-                'step' => 1,
+                'activation_payment_made' => false,
+                // 'step' => 1,
             ]);
         }
 
@@ -149,6 +159,7 @@ class AdminUserController extends Controller
             'message' => 'Payment has been canceled successfully.',
         ]);
     }
+
 
 
     public function getUsersByRole(Request $request)
