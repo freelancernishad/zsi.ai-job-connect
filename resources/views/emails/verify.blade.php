@@ -8,7 +8,7 @@
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
         <!-- Header Section -->
-        <div style="text-align: center; margin-bottom: 20px;">
+        <div style="text-align: left; margin-bottom: 20px;">
             <img src="https://jobconnectusa.com/_next/image?url=%2Flogo.png&w=256&q=75" alt="Job Connect USA Logo" style="max-width: 80px;">
         </div>
 
