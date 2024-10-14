@@ -4,64 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header img {
-            max-width: 100px;
-        }
-        .content {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .button {
-            display: inline-block;
-            padding: 15px 30px;
-            margin-top: 20px;
-            font-size: 16px;
-            color: #ffffff !important;
-            background-color: #007bff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #888888;
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+        <!-- Header Section -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://jobconnectusa.com/_next/image?url=%2Flogo.png&w=256&q=75" alt="Job Connect USA Logo" style="max-width: 80px;">
         </div>
-        <div class="content">
-            <h1>Email Verification</h1>
-            <p>Hello {{ $user->name }},</p>
-            <p>Thank you for registering with us. Please click the button below to verify your email address and complete your registration:</p>
-            <a href="{{ $verify_url.'?token=' . $user->email_verification_hash }}" class="button">Verify Email</a>
+
+        <!-- Main Content -->
+        <div style="text-align: left; margin-bottom: 20px;">
+            <p style="font-size: 16px; color: #555555;">Dear {{ $user->first_name }},</p>
+            <p style="font-size: 16px; color: #555555;">
+                Thank you for signing up for Job Connect USA! To complete your registration, please verify your email address by clicking the button below:
+            </p>
+
+            <!-- Verify Email Button -->
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="{{ $verify_url.'?token=' . $user->email_verification_hash }}"
+                   style="display: inline-block; padding: 12px 30px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #28a745; text-decoration: none; border-radius: 5px;">
+                   Verify Your Email Address
+                </a>
+            </div>
+
+            <p style="font-size: 16px; color: #555555;">
+                Once your email is verified, you’ll be able to access all of our features, including finding the best employees for your needs or applying for jobs that match your skills.
+            </p>
+            <p style="font-size: 16px; color: #555555;">
+                If you didn’t sign up for this account, please disregard this email.
+            </p>
         </div>
-        <div class="footer">
-            <p>If you did not create an account, no further action is required.</p>
-            <p>Thank you,<br>Your Company Name</p>
+
+        <!-- Footer Section -->
+        <div style="text-align: left; font-size: 12px; color: #888888; margin-top: 30px;">
+            <p>Best regards,<br>Job Connect USA Team</p>
+            <p style="margin-top: 20px;">
+                <a href="https://jobconnectusa.com/privacy-policy" style="color: #007bff; text-decoration: none;">Privacy Policy</a> |
+                <a href="#" style="color: #007bff; text-decoration: none;">Contact Support</a>
+            </p>
         </div>
     </div>
 </body>
