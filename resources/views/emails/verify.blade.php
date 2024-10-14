@@ -40,7 +40,7 @@
             <p>Best regards,<br>Job Connect USA Team</p>
             <p style="margin-top: 20px;">
                 <a href="https://jobconnectusa.com/privacy-policy" style="color: #007bff; text-decoration: none;">Privacy Policy</a> |
-                <a href="#" style="color: #007bff; text-decoration: none;">Contact Support</a>
+                <a href="https://jobconnectusa.com/contact" style="color: #007bff; text-decoration: none;">Contact Support</a>
             </p>
         </div>
     </div>
