@@ -51,6 +51,6 @@ class VerifyEmail extends Notification implements ShouldQueue
                 'user' => $this->user,
                 'verify_url' => $this->verify_url
             ])
-            ->subject('Email Verification Required');
+            ->subject('Please Verify Your Email Address for Job Connect USA');
     }
 }
