@@ -150,6 +150,7 @@ class AdminUserController extends Controller
             $user->update([
                 'status' => 'inactive',
                 'activation_payment_made' => false,
+                'activation_payment_cancel' => true,
                 // 'step' => 1,
             ]);
         }

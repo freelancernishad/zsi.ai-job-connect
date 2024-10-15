@@ -305,7 +305,7 @@ class UserController extends Controller
             if (is_array($paymentResponse) && isset($paymentResponse['success'])) {
                 if ($paymentResponse['success']) {
                     // Update user to indicate that payment has been made
-                    $user->update(['activation_payment_made' => true]);
+                    $user->update(['activation_payment_made' => true,'activation_payment_cancel' => false]);
                     return response()->json($paymentResponse);
                 } else {
                     return response()->json([
