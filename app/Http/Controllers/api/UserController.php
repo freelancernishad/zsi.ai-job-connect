@@ -254,50 +254,82 @@ class UserController extends Controller
 
 
 
-    public function registerStep3()
-    {
-        $user = Auth::user();
+    public function registerStep3(Request $request)
+{
+    $user = Auth::user();
 
-        // Check if user is authenticated
-        if (!$user) {
+    // Check if user is authenticated
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User is not authenticated. Please log in and try again.',
+        ], 401);
+    }
+
+    // Check if user status is inactive
+    if ($user->status !== 'inactive') {
+        return response()->json([
+            'success' => false,
+            'message' => 'The user is already active and does not need to complete this step again.',
+        ], 400);
+    }
+
+    // Check user step
+    if ($user->step === 1) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please complete Step 2 before proceeding to the payment process.',
+        ], 400);
+    }
+
+    if ($user->step !== 2) {
+        return response()->json([
+            'success' => false,
+            'message' => 'The user is in an unexpected state. Please contact support for assistance.',
+        ], 400);
+    }
+
+    // Check if payment has already been made
+    if ($user->activation_payment_made) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
+        ], 400);
+    }
+
+    // Retrieve the payment method from the request
+    $paymentMethod = $request->input('payment_method', 'cash'); // Default to 'cash' if no method provided
+
+    if ($paymentMethod === 'card') {
+        // Payment data for card
+        $paymentData = [
+            'name' => $user->name,
+            'userid' => $user->id,
+            'amount' => 100, // Assuming fixed payment amount for this case
+            'applicant_mobile' => '1234567890', // This should come from employer's data
+            'success_url' => $request->input('success_url'),
+            'cancel_url' => $request->input('cancel_url'),
+            'type' => "activation"
+        ];
+
+        // Trigger the Stripe payment and get the redirect URL
+        try {
+            $paymentUrl = stripe($paymentData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Redirect to payment',
+                'payment_url' => $paymentUrl['session_url'],
+                'payment' => $paymentUrl['payment']
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'User is not authenticated. Please log in and try again.',
-            ], 401);
+                'message' => 'An error occurred while processing the card payment: ' . $e->getMessage(),
+            ], 500);
         }
-
-        // Check if user status is inactive
-        if ($user->status !== 'inactive') {
-            return response()->json([
-                'success' => false,
-                'message' => 'The user is already active and does not need to complete this step again.',
-            ], 400);
-        }
-
-        // Check user step
-        if ($user->step === 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please complete Step 2 before proceeding to the payment process.',
-            ], 400);
-        }
-
-        if ($user->step !== 2) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The user is in an unexpected state. Please contact support for assistance.',
-            ], 400);
-        }
-
-        // Check if payment has already been made
-        if ($user->activation_payment_made) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activation payment has already been processed for this user. Please contact the admin for further assistance.',
-            ], 400);
-        }
-
-        // Call the createPayment method and pass the amount
+    } else if ($paymentMethod === 'cash') {
+        // Execute existing code for cash payments
         try {
             $paymentResponse = createPayment(100);
 
@@ -305,7 +337,7 @@ class UserController extends Controller
             if (is_array($paymentResponse) && isset($paymentResponse['success'])) {
                 if ($paymentResponse['success']) {
                     // Update user to indicate that payment has been made
-                    $user->update(['activation_payment_made' => true,'activation_payment_cancel' => false]);
+                    $user->update(['activation_payment_made' => true, 'activation_payment_cancel' => false]);
                     return response()->json($paymentResponse);
                 } else {
                     return response()->json([
@@ -325,7 +357,14 @@ class UserController extends Controller
                 'message' => 'An error occurred while processing the payment: ' . $e->getMessage(),
             ], 500);
         }
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid payment method selected. Please choose either "card" or "cash".',
+        ], 400);
     }
+}
+
 
 
 

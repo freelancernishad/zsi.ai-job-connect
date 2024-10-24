@@ -78,7 +78,7 @@ function routeUsesMiddleware($route, $middlewareName)
     if($payment_method=='cash'){
         $method ='cash';
     }else{
-        $method ='online';
+        $method ='card';
 
     }
 

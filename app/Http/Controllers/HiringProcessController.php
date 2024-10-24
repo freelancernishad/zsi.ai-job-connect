@@ -93,7 +93,7 @@ class HiringProcessController extends Controller
             'success' => true,
             'message' => 'Hiring request created successfully. You will be redirected for payment.',
             'hiring_request' => $hiringRequest,
-            'paymentUrl' => $paymentUrl,
+            'paymentUrl' => $paymentUrl['session_url'],
         ], 201);
     }
 

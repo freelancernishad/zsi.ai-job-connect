@@ -68,7 +68,10 @@ function stripe($array = [])
     ]);
 
     // Redirect the user to Stripe checkout
-    return $session->url;
+    return [
+        'payment'=> $payment,
+        'session_url' => $session->url
+    ];
 }
 
 
