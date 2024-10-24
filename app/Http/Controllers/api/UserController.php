@@ -305,7 +305,7 @@ class UserController extends Controller
         $paymentData = [
             'name' => $user->name,
             'userid' => $user->id,
-            'amount' => 0.1, // Assuming fixed payment amount for this case
+            'amount' => 1, // Assuming fixed payment amount for this case
             'applicant_mobile' => '1234567890', // This should come from employer's data
             'success_url' => $request->input('success_url'),
             'cancel_url' => $request->input('cancel_url'),
