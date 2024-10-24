@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Stripe\Stripe;
+use App\Models\User;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use App\Models\HiringRequest;
@@ -147,9 +148,12 @@ class StripePaymentController extends Controller
                 'ipnResponse' => json_encode($session),
             ]);
 
-            // Check if payment has a related hiring request
-            if ($payment->hiring_request_id) {
-                // Find the corresponding hiring request
+            // Check payment type and perform relevant actions
+            if ($payment->type === 'activation') {
+                // Call the activateUser function to activate the user
+                $this->activateUser($payment->userid);
+            } elseif ($payment->hiring_request_id) {
+                // Check if payment has a related hiring request
                 $hiringRequest = HiringRequest::find($payment->hiring_request_id);
                 if ($hiringRequest) {
                     // Update the hiring request status to approved
@@ -165,9 +169,11 @@ class StripePaymentController extends Controller
                 'ipnResponse' => json_encode($session),
             ]);
 
-            // Check if payment has a related hiring request
-            if ($payment->hiring_request_id) {
-                // Find the corresponding hiring request
+            // Handle failure for activation type
+            if ($payment->type === 'activation') {
+                // Optionally, handle specific failure actions for activation payments
+            } elseif ($payment->hiring_request_id) {
+                // Check if payment has a related hiring request
                 $hiringRequest = HiringRequest::find($payment->hiring_request_id);
                 if ($hiringRequest) {
                     // Update the hiring request status to failed
@@ -178,6 +184,48 @@ class StripePaymentController extends Controller
             }
         }
     }
+
+
+
+
+
+
+
+
+    private function activateUser($userId)
+{
+    // Find the user by ID
+    $user = User::find($userId);
+
+    if ($user) {
+        // Check if user is already active
+        if ($user->status === 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The user is already active.',
+            ], 400);
+        }
+
+        // Activate the user
+        $user->update([
+            'status' => 'active',
+            'step' => 3, // Assuming step 3 means the activation process is complete
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User activated successfully.',
+        ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found.',
+        ], 404);
+    }
+}
+
+
+
 
 
 
