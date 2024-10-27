@@ -47,6 +47,13 @@
             color: #333;
         }
 
+        .employee-details {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+        }
+
         .footer {
             background-color: #f1f1f1;
             text-align: center;
@@ -95,6 +102,15 @@
             <p><strong>Applied by:</strong> {{ $data['username'] }}</p>
             <a style="color:white" href="https://jobconnectusa.com" class="button">Visit Our Website</a>
         </div>
+
+        <div class="employee-details">
+            <h2>Employee Details</h2>
+            <p><strong>Name:</strong> {{ $data['name'] }}</p>
+            <p><strong>Email:</strong> {{ $data['email'] }}</p>
+            <p><strong>Phone:</strong> {{ $data['phone'] }}</p>
+            <p><strong>Address:</strong> {{ $data['address'] }}</p>
+        </div>
+
         <div class="footer">
             <p>Thank you for considering this application.</p>
             <p>© {{ date('Y') }} Job Connect USA. All Rights Reserved.</p>

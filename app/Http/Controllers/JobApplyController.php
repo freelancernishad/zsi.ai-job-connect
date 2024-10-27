@@ -22,13 +22,13 @@ class JobApplyController extends Controller
             'title' => 'required|string|max:255',
             'service' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'employment_type' => 'required|array', 
+            'employment_type' => 'required|array',
             'employment_type.*' => 'string|max:255',
             'hourly_rate_min' => 'required|numeric|min:0',
             'hourly_rate_max' => 'required|numeric|min:0',
             'note' => 'nullable|string',
         ]);
-
+        $user = Auth::user();
         // Prepare email data
         $data = [
             'title' => $request->input('title'),
@@ -38,7 +38,11 @@ class JobApplyController extends Controller
             'hourly_rate_min' => $request->input('hourly_rate_min'),
             'hourly_rate_max' => $request->input('hourly_rate_max'),
             'note' => $request->input('note'),
-            'username' => Auth::user()->name, // Get authenticated user's name
+            'username' => $user->name, // Get authenticated user's name
+            'name' => $user->name, // Auth user name
+            'email' => $user->email,    // Auth user email
+            'phone' => $user->phone_number,     // Auth user phone
+            'address' => $user->address,  // Auth user address
         ];
 
         // Send the email
