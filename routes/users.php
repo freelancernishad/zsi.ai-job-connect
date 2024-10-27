@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\api\UserController;
+use App\Http\Controllers\JobApplyController;
 use App\Http\Controllers\RoleUserController;
 use App\Http\Controllers\api\MediaController;
 use App\Http\Controllers\api\ResumeController;
@@ -63,7 +64,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/user/{username}', [UserController::class, 'getUserByUsername']);
     Route::post('/user/update/profile', [UserController::class, 'updateProfileByToken']);
 
-   
+
 
     Route::get('/resumes', [ResumeController::class, 'index']);
     Route::post('/resumes', [ResumeController::class, 'store']);
@@ -119,7 +120,7 @@ Route::middleware(['auth:api'])->group(function () {
         ->middleware('checkPermission:users.change_password');
 
 
-
+        Route::post('job/apply', [JobApplyController::class, 'sendMail']);
 
 
     Route::get('/user-access', function () {

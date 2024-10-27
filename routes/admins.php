@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserController;
 
+use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\api\TransactionController;
@@ -90,6 +91,20 @@ Route::middleware('auth:admin')->group(function () {
 
     Route::get('admin/users/search', [AdminUserController::class, 'getUsersByRole']);
     Route::post('update/All/User/Names', [UserController::class, 'updateAllUserNames']);
+
+
+
+
+    Route::prefix('admin')->group(function () {
+        Route::get('jobs', [JobController::class, 'index']);
+        Route::get('jobs/{id}', [JobController::class, 'show']);
+        Route::post('jobs', [JobController::class, 'store']);
+        Route::put('jobs/{id}', [JobController::class, 'update']);
+        Route::delete('jobs/{id}', [JobController::class, 'destroy']);
+        Route::patch('jobs/{id}/change-status', [JobController::class, 'changeStatus']);
+    });
+
+
 
 });
 
