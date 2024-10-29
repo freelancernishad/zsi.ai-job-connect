@@ -19,8 +19,11 @@ class TransactionController extends Controller
         // Determine the number of items per page (default to 10 if not provided)
         $perPage = $request->query('per_page', 10);
 
-        // Paginate the approved transactions and eager load the user and related relationships
-        $transactions = Payment::with([
+        // Retrieve trxId from the request query parameters
+        $trxId = $request->query('trxId');
+
+        // Start building the query
+        $query = Payment::with([
                 'user.languages',           // Eager load user's languages
                 'user.certifications',      // Eager load user's certifications
                 'user.skills',              // Eager load user's skills
@@ -30,8 +33,15 @@ class TransactionController extends Controller
                 'hiringRequest'             // Eager load hiring request related to transaction
             ])
             ->where('status', 'approved') // Filter by approved status
-            ->orderBy('id', 'desc') // Sort by ID in descending order
-            ->paginate($perPage);
+            ->orderBy('id', 'desc'); // Sort by ID in descending order
+
+        // If trxId exists, add it as a filter
+        if ($trxId) {
+            $query->where('trxId', $trxId); // Filter by trxId
+        }
+
+        // Paginate the results
+        $transactions = $query->paginate($perPage);
 
         // Return response using the jsonResponse function
         if ($transactions->isEmpty()) {
@@ -40,6 +50,7 @@ class TransactionController extends Controller
 
         return jsonResponse(true, 'Approved transactions retrieved successfully.', $transactions);
     }
+
 
     /**
      * Get approved transactions filtered by type with default 'Hiring-Request', with optional pagination

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserController;
 
+use App\Http\Controllers\JobApplyController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\HiringProcessController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -104,7 +105,7 @@ Route::middleware('auth:admin')->group(function () {
         Route::patch('jobs/{id}/change-status', [JobController::class, 'changeStatus']);
     });
 
-
+    Route::get('admin/job-applies', [JobApplyController::class, 'getJobApplies']);
 
 });
 
