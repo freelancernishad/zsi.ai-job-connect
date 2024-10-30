@@ -92,7 +92,7 @@
             <h1>Job Application</h1>
         </div>
         <div class="content">
-            <p><strong>Title:</strong> {{ $data['title'] }}</p>
+            <p><strong>Title:</strong> {{ $data['company_name'] }}</p>
             <p><strong>Service:</strong> {{ $data['service'] }}</p>
             <p><strong>Location:</strong> {{ $data['location'] }}</p>
             <p><strong>Employment Type:</strong> {{ implode(', ', $data['employment_type']) }}</p>

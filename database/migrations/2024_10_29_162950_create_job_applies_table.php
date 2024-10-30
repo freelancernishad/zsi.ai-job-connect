@@ -16,7 +16,7 @@ class CreateJobAppliesTable extends Migration
         Schema::create('job_applies', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key for user
-            $table->string('title');
+            $table->string('company_name');
             $table->string('service');
             $table->string('location');
             $table->json('employment_type'); // Store as JSON if multiple types

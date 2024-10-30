@@ -21,22 +21,22 @@ class JobApplyController extends Controller
      public function sendMail(Request $request)
      {
          // Validate the request data
-         $request->validate([
-             'title' => 'required|string|max:255',
-             'service' => 'required|string|max:255',
-             'location' => 'required|string|max:255',
-             'employment_type' => 'required|array',
-             'employment_type.*' => 'string|max:255',
-             'hourly_rate_min' => 'required|numeric|min:0',
-             'hourly_rate_max' => 'required|numeric|min:0',
-             'note' => 'nullable|string',
-         ]);
-     
+        //  $request->validate([
+        //      'company_name' => 'required|string|max:255',
+        //      'service' => 'required|string|max:255',
+        //      'location' => 'required|string|max:255',
+        //      'employment_type' => 'required|array',
+        //      'employment_type.*' => 'string|max:255',
+        //      'hourly_rate_min' => 'required|numeric|min:0',
+        //      'hourly_rate_max' => 'required|numeric|min:0',
+        //      'note' => 'nullable|string',
+        //  ]);
+
          $user = Auth::user();
-     
+
          // Prepare email data
          $data = [
-             'title' => $request->input('title'),
+             'company_name' => $request->input('company_name'),
              'service' => $request->input('service'),
              'location' => $request->input('location'),
              'employment_type' => $request->input('employment_type'),
@@ -49,31 +49,15 @@ class JobApplyController extends Controller
              'phone' => $user->phone_number,
              'address' => $user->address,
          ];
-     
-         // Check if the user role is EMPLOYEE
-         if ($user->role === 'EMPLOYEE') {
-             // Save the job application to the database
-             $jobApply = JobApply::create([
-                 'user_id' => $user->id,
-                 'title' => $data['title'],
-                 'service' => $data['service'],
-                 'location' => $data['location'],
-                 'employment_type' => json_encode($data['employment_type']), // Convert to JSON
-                 'hourly_rate_min' => $data['hourly_rate_min'],
-                 'hourly_rate_max' => $data['hourly_rate_max'],
-                 'note' => $data['note'],
-             ]);
-     
-             // Optionally send the email
-             // Mail::to('freelancernishad123@gmail.com') // Change to the recipient's email
-             //     ->send(new JobApplicationMail($data));
-     
-             return response()->json(['message' => 'Application sent successfully!']);
-         }
-     
-         return response()->json(['message' => 'You are not authorized to apply for jobs.'], 403);
+
+         // Send the email
+         Mail::to('freelancernishad123@gmail.com') // Change to the recipient's email
+             ->send(new JobApplicationMail($data));
+
+         return response()->json(['message' => 'Application sent successfully!']);
      }
-     
+
+
 
 
     public function getJobApplies(Request $request)
@@ -88,7 +72,7 @@ class JobApplyController extends Controller
         // If there's a search query, apply the filters
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
+                $q->where('company_name', 'like', '%' . $search . '%')
                   ->orWhere('service', 'like', '%' . $search . '%')
                   ->orWhereHas('user', function ($q) use ($search) {
                       $q->where('name', 'like', '%' . $search . '%')

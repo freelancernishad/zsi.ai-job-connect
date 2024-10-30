@@ -33,7 +33,7 @@ class User extends Authenticatable implements JWTSubject
         'date_of_birth',
         'profile_picture',
         'preferred_job_title',
-        'job_by',
+        'company_name',
         'description',
         'years_of_experience_in_the_industry',
         'preferred_work_state',

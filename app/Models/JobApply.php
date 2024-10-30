@@ -11,9 +11,15 @@ class JobApply extends Model
 
     protected $fillable = [
         'user_id',
-        'title',
-        'service',
+        'company_name',
         'location',
+
+        'position',
+        'total_positions',
+        'website',
+        'company_logo',
+
+        'service',
         'employment_type',
         'hourly_rate_min',
         'hourly_rate_max',
