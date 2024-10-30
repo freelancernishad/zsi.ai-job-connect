@@ -209,6 +209,15 @@ class AdminUserController extends Controller
             });
         }
 
+
+        // Get the service parameter for preferred job title filter (optional)
+        $service = $request->query('service'); // This can be 1, 2, or 3
+        // Apply preferred_job_title filter if service is provided
+        if ($service) {
+            $query->where('preferred_job_title', $service);
+        }
+
+
         // Retrieve the users with eager loading and pagination
         $users = $query->with([
             'languages',
