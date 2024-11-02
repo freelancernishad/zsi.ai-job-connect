@@ -68,7 +68,6 @@ class UserController extends Controller
                 'nullable',
                 'string',
                 'max:15',
-                Rule::unique('users')->ignore($user->id),
             ],
             'address' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable',
@@ -533,8 +532,7 @@ public function updateProfileByToken(Request $request)
         'phone_number' => [
             'nullable',
             'string',
-            'max:15',
-            Rule::unique('users')->ignore($user->id),
+            'max:15'
         ],
         'address' => 'nullable|string|max:255',
         'date_of_birth' => 'nullable|date',
