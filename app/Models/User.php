@@ -33,6 +33,7 @@ class User extends Authenticatable implements JWTSubject
         'date_of_birth',
         'profile_picture',
         'preferred_job_title',
+        'is_other_preferred_job_title',
         'company_name',
         'description',
         'years_of_experience_in_the_industry',
@@ -211,9 +212,14 @@ class User extends Authenticatable implements JWTSubject
 
         public function getPreferredJobTitleAttribute()
         {
+            // Check if 'is_other_preferred_job_title' is true
+            if ($this->attributes['is_other_preferred_job_title']) {
+                return $this->attributes['preferred_job_title'];
+            }
+
+            // Otherwise, retrieve the related service name
             $service = Service::find($this->attributes['preferred_job_title']);
             return $service ? $service->name : null;
-
         }
 
 
@@ -288,21 +294,28 @@ class User extends Authenticatable implements JWTSubject
                 });
             }
 
-
-                // Handle preferred_job_title filter
+            // Handle preferred_job_title filter
             if (isset($filters['preferred_job_title'])) {
                 // Get the service name from the request
                 $serviceName = $filters['preferred_job_title'];
 
-                // Get service ID from the service name
-                $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
-
-                if ($serviceId) {
-                    // Filter users by service ID
-                    $query->where('preferred_job_title', $serviceId);
+                // Check if the filter is for custom titles
+                if ($filters['is_other_preferred_job_title'] ?? false) {
+                    // Directly filter by the preferred job title as a custom text value
+                    $query->where('preferred_job_title', $serviceName)
+                        ->where('is_other_preferred_job_title', true);
                 } else {
-                    // If no service found, return empty result
-                    $query->whereRaw('1 = 0'); // No results
+                    // Get service ID from the service name
+                    $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
+
+                    if ($serviceId) {
+                        // Filter users by service ID
+                        $query->where('preferred_job_title', $serviceId)
+                            ->where('is_other_preferred_job_title', false);
+                    } else {
+                        // If no service found, return empty result
+                        $query->whereRaw('1 = 0'); // No results
+                    }
                 }
             }
 
