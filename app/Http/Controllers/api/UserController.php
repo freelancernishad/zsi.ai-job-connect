@@ -73,6 +73,7 @@ class UserController extends Controller
             'date_of_birth' => 'nullable',
             'profile_picture' => 'nullable|string|max:255',
             'preferred_job_title' => 'nullable|string|max:255',
+            'is_other_preferred_job_title' => 'nullable',
             'company_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'years_of_experience_in_the_industry' => 'nullable|string',
@@ -130,6 +131,7 @@ class UserController extends Controller
         $user->date_of_birth = date("Y-m-d", strtotime($request->date_of_birth)) ?? date("Y-m-d", strtotime($user->date_of_birth));
         $user->profile_picture = $request->profile_picture ?? $user->profile_picture;
         $user->preferred_job_title = $request->preferred_job_title ?? $user->preferred_job_title;
+        $user->is_other_preferred_job_title = $request->is_other_preferred_job_title ?? $user->is_other_preferred_job_title;
         $user->company_name = $request->company_name ?? $user->company_name;
         $user->description = $request->description ?? $user->description;
         $user->years_of_experience_in_the_industry = $request->years_of_experience_in_the_industry ?? $user->years_of_experience_in_the_industry;
@@ -538,6 +540,7 @@ public function updateProfileByToken(Request $request)
         'date_of_birth' => 'nullable|date',
         'profile_picture' => 'nullable|string|max:255',
         'preferred_job_title' => 'nullable|string|max:255',
+        'is_other_preferred_job_title' => 'nullable',
         'company_name' => 'nullable|string|max:255',
         'description' => 'nullable|string',
         'years_of_experience_in_the_industry' => 'nullable|string',
@@ -613,6 +616,9 @@ public function updateProfileByToken(Request $request)
     }
     if ($request->has('preferred_job_title')) {
         $user->preferred_job_title = $request->preferred_job_title;
+    }
+    if ($request->has('is_other_preferred_job_title')) {
+        $user->is_other_preferred_job_title = $request->is_other_preferred_job_title;
     }
     if ($request->has('company_name')) {
         $user->company_name = $request->company_name;
