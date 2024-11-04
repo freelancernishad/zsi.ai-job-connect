@@ -7,8 +7,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\SocialLinkController;
-use App\Http\Controllers\AdvertisementController;
+use App\Http\Controllers\ServerStatusController;
 
+use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\Global\GlobalUserController;
 use App\Http\Controllers\api\EmployeeHiringPriceController;
@@ -82,3 +83,6 @@ Route::get('/stripe/confirm/payment', [StripePaymentController::class, 'paymentS
 
 Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 
+
+
+Route::get('/server-status', [ServerStatusController::class, 'status']);

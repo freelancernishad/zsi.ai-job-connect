@@ -188,11 +188,23 @@ class AdminUserController extends Controller
 
         // Apply role-based filters if a role is provided
         if ($role) {
+
+
+            // if ($role === 'EMPLOYEE') {
+            //     $query->where('role', 'EMPLOYEE')->where('status', 'active');
+            // } elseif ($role === 'EMPLOYER') {
+            //     $query->where('role', 'EMPLOYER')->where('employer_status', 'active');
+            // }
+
+
             if ($role === 'EMPLOYEE') {
-                $query->where('role', 'EMPLOYEE')->where('status', 'active');
+                $query->where('role', 'EMPLOYEE');
             } elseif ($role === 'EMPLOYER') {
-                $query->where('role', 'EMPLOYER')->where('employer_status', 'active');
+                $query->where('role', 'EMPLOYER');
             }
+
+
+
         } else {
             // If no role is specified, filter by active employees and employers
             $query->where(function($q) {
