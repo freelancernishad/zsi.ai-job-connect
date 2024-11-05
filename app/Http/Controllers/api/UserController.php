@@ -426,7 +426,7 @@ class UserController extends Controller
                        'education',
                        'employmentHistory',
                        'resume',
-                  
+
                        'thumbnail'
                    ])
                    ->first();
@@ -601,7 +601,12 @@ public function updateProfileByToken(Request $request)
 
         // Validation for UserLookingService
         'looking_services' => 'nullable|array',
-        'looking_services.*' => 'required|exists:services,id'
+        'looking_services.*' => 'required|exists:services,id',
+
+        'others_looking_services' => 'nullable|array',
+        'others_looking_services.*' => 'required|string|max:255'
+
+
     ]);
 
     if ($validator->fails()) {
@@ -731,13 +736,27 @@ public function updateProfileByToken(Request $request)
         }
     }
 
-    // Update looking services
-    if ($request->has('looking_services')) {
-        $user->lookingServices()->delete(); // Delete existing looking services
-        foreach ($request->looking_services as $serviceId) {
-            $user->lookingServices()->create([
-                'service_id' => $serviceId,
-            ]);
+       // Update looking services
+       if ($request->has('looking_services') || $request->has('others_looking_services')) {
+        // Delete existing looking services for this user
+        $user->lookingServices()->delete();
+
+        // Handle `looking_services` with `service_id`
+        if ($request->has('looking_services')) {
+            foreach ($request->looking_services as $serviceId) {
+                $user->lookingServices()->create([
+                    'service_id' => $serviceId,
+                ]);
+            }
+        }
+
+        // Handle `others_looking_services` with `service_title`
+        if ($request->has('others_looking_services')) {
+            foreach ($request->others_looking_services as $serviceTitle) {
+                $user->lookingServices()->create([
+                    'service_title' => $serviceTitle,
+                ]);
+            }
         }
     }
 
