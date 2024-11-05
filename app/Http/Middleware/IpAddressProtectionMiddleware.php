@@ -19,6 +19,8 @@ class IpAddressProtectionMiddleware
         'https://www.admin.jobconnectusa.com',
         'http://localhost:3001',
         'http://localhost:8000',
+        'https://dev.d2djobg98sxogp.amplifyapp.com',
+        'https://www.dev.d2djobg98sxogp.amplifyapp.com',
 
 
 
