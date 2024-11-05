@@ -20,6 +20,11 @@ class GlobalUserController extends Controller
         // Retrieve all filters from the request
         $filters = $request->all();
 
+
+
+
+
+
         // Start building the query
         $query = User::filter($filters)->with([
             'languages',
@@ -30,6 +35,23 @@ class GlobalUserController extends Controller
             'preferredJobTitleService',
             'thumbnail'
         ]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             // Apply additional filters for role and status
         $query->where('role', 'EMPLOYEE')
@@ -51,6 +73,10 @@ class GlobalUserController extends Controller
         else {
             $users = $query->paginate(10);
         }
+
+
+
+
 
         // Return the filtered and possibly paginated results in a structured JSON response
         return response()->json([
