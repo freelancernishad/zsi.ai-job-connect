@@ -752,7 +752,7 @@ public function updateProfileByToken(Request $request)
 
         // Handle `others_looking_services` with `service_title`
         if ($request->has('other_looking_services')) {
-            foreach ($request->others_looking_services as $serviceTitle) {
+            foreach ($request->other_looking_services as $serviceTitle) {
                 $user->lookingServices()->create([
                     'service_title' => $serviceTitle,
                 ]);
