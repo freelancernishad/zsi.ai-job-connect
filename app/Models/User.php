@@ -339,25 +339,27 @@ class User extends Authenticatable implements JWTSubject
                 // Get the service name from the request
                 $serviceName = $filters['preferred_job_title'];
 
-                // Check if the filter is for custom titles
-                if ($filters['is_other_preferred_job_title'] ?? false) {
-                    // Directly filter by the preferred job title as a custom text value
-                    $query->where('preferred_job_title', $serviceName)
-                        ->where('is_other_preferred_job_title', true);
-                } else {
-                    // Get service ID from the service name
-                    $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
+                // Attempt to find the service ID based on the provided service name
+                $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
 
-                    if ($serviceId) {
-                        // Filter users by service ID
-                        $query->where('preferred_job_title', $serviceId)
+                // Check if the service ID exists
+                if ($serviceId) {
+                    // Filter for records where the preferred job title matches the service ID
+                    // and `is_other_preferred_job_title` is false
+                    $query->where(function ($q) use ($serviceId) {
+                        $q->where('preferred_job_title', $serviceId)
                             ->where('is_other_preferred_job_title', false);
-                    } else {
-                        // If no service found, return empty result
-                        $query->whereRaw('1 = 0'); // No results
-                    }
+                    });
+                } else {
+                    // If the service ID doesn't exist, check for records where the preferred job title
+                    // matches the given name directly and `is_other_preferred_job_title` is true
+                    $query->where(function ($q) use ($serviceName) {
+                        $q->where('preferred_job_title', $serviceName)
+                            ->where('is_other_preferred_job_title', true);
+                    });
                 }
             }
+
 
 
 
