@@ -26,10 +26,10 @@
             </p> --}}
 
             <!-- Visit Website Button -->
-            <div style="text-align: center; margin: 20px 0;">
+            <div style="text-align: left; margin: 20px 0;">
                 <a href="https://jobconnectusa.com"
-                   style="display: inline-block; padding: 12px 30px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #28a745; text-decoration: none; border-radius: 5px;">
-                   Visit Our Website
+                   style="display: inline-block; font-size: 16px; font-weight: bold;  text-decoration: underline; border-radius: 5px;">
+                   Go to Website
                 </a>
             </div>
         </div>
