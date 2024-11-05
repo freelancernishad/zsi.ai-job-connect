@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
@@ -176,10 +177,49 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserLookingService::class);
     }
 
+
     public function servicesLookingFor()
     {
-        return $this->belongsToMany(Service::class, 'user_looking_services');
+
+      return  $this->belongsToMany(Service::class, 'user_looking_services');
+
+
     }
+
+
+    public function allServicesLookingFor()
+    {
+        return DB::table('user_looking_services')
+            ->leftJoin('services', 'user_looking_services.service_id', '=', 'services.id')
+            ->where('user_looking_services.user_id', $this->id)
+            ->select(
+                'services.id as id',
+                'services.name',
+                'services.icon',
+                'user_looking_services.created_at',
+                'user_looking_services.updated_at',
+                'user_looking_services.user_id',
+                'user_looking_services.service_id',
+                'user_looking_services.service_title' // Include service_title for null service_id case
+            )
+            ->get()
+            ->map(function ($record) {
+                return (object) [
+                    'id' => $record->id ?? null,  // Service ID or null
+                    'name' => $record->id ? $record->name : $record->service_title,  // Use service_title if id is null
+                    'icon' => $record->icon ?? '',  // Service Icon
+                    'created_at' => $record->created_at,  // Created At
+                    'updated_at' => $record->updated_at,  // Updated At
+                    'pivot' => (object) [
+                        'user_id' => $record->user_id,
+                        'service_id' => $record->service_id
+                    ]
+                ];
+            })->toArray(); // Convert to array
+    }
+
+
+
 
     public function lookingServices()
     {

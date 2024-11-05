@@ -113,7 +113,12 @@ class UserController extends Controller
 
             // Validation for UserLookingService
             'looking_services' => 'nullable|array',
-            'looking_services.*' => 'required|exists:services,id'
+            'looking_services.*' => 'required|exists:services,id',
+
+            'others_looking_services' => 'nullable|array',
+            'others_looking_services.*' => 'required|string|max:255'
+
+
         ]);
 
         if ($validator->fails()) {
@@ -234,19 +239,33 @@ class UserController extends Controller
         }
 
         // Update looking services
-        if ($request->has('looking_services')) {
-            $serviceIds = $request->looking_services;
-
+        if ($request->has('looking_services') || $request->has('others_looking_services')) {
             // Delete existing looking services for this user
             $user->lookingServices()->delete();
 
-            // Create new looking services
-            foreach ($serviceIds as $serviceId) {
-                $user->lookingServices()->create([
-                    'service_id' => $serviceId,
-                ]);
+            // Handle `looking_services` with `service_id`
+            if ($request->has('looking_services')) {
+                foreach ($request->looking_services as $serviceId) {
+                    $user->lookingServices()->create([
+                        'service_id' => $serviceId,
+                    ]);
+                }
+            }
+
+            // Handle `others_looking_services` with `service_title`
+            if ($request->has('others_looking_services')) {
+                foreach ($request->others_looking_services as $serviceTitle) {
+                    $user->lookingServices()->create([
+                        'service_title' => $serviceTitle,
+                    ]);
+                }
             }
         }
+
+
+
+
+
 
         return response()->json([
             'success' => true,
@@ -407,10 +426,11 @@ class UserController extends Controller
                        'education',
                        'employmentHistory',
                        'resume',
-                       'servicesLookingFor',
+                  
                        'thumbnail'
                    ])
                    ->first();
+
 
        if (!$user) {
            return response()->json([
@@ -423,7 +443,9 @@ class UserController extends Controller
        $currentUserId = auth()->id();
 
        // Add the total number of likes received to the user object
+       $user->services_looking_for = $user->allServicesLookingFor();
        $user->total_likes_received = $user->receivedLikes()->count();
+
 
        // Check if the currently authenticated user has liked this user and add it to the user object
        $user->user_liked_by_current_user = $user->isLikedByUser($currentUserId);

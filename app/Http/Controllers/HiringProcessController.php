@@ -260,21 +260,18 @@ class HiringProcessController extends Controller
      * @param string $step
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getRequestsByStepWithPagination(Request $request,$step)
+    public function getRequestsByStepWithPagination(Request $request, $step)
     {
-
         $perPage = $request->query('per_page', 10);
 
         $requests = HiringRequest::with([
-            'employer.servicesLookingFor',
-
+             'employer.servicesLookingFor',
             'selectedEmployees.employee.languages',
             'selectedEmployees.employee.certifications',
             'selectedEmployees.employee.skills',
             'selectedEmployees.employee.education',
             'selectedEmployees.employee.employmentHistory',
             'selectedEmployees.employee.resume',
-
 
             'hiringAssignments.employee.languages',
             'hiringAssignments.employee.certifications',
@@ -283,15 +280,20 @@ class HiringProcessController extends Controller
             'hiringAssignments.employee.employmentHistory',
             'hiringAssignments.employee.resume',
 
-
             'releasedHiringAssignments.employee.languages',
             'releasedHiringAssignments.employee.certifications',
             'releasedHiringAssignments.employee.skills',
             'releasedHiringAssignments.employee.education',
             'releasedHiringAssignments.employee.employmentHistory',
             'releasedHiringAssignments.employee.resume',
-
         ])->where('status', $step)->paginate($perPage); // Adjust pagination as needed
+
+        // Iterate through the requests and add the services_looking_for
+        // foreach ($requests as $requestItem) {
+        //     if ($requestItem->employer) {
+        //         $requestItem->employer->services_looking_for = $requestItem->employer->allServicesLookingFor();
+        //     }
+        // }
 
         return response()->json([
             'success' => true,
@@ -300,4 +302,5 @@ class HiringProcessController extends Controller
             'requests' => $requests,
         ], 200);
     }
+
 }
