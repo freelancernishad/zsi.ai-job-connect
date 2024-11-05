@@ -603,8 +603,8 @@ public function updateProfileByToken(Request $request)
         'looking_services' => 'nullable|array',
         'looking_services.*' => 'required|exists:services,id',
 
-        'others_looking_services' => 'nullable|array',
-        'others_looking_services.*' => 'required|string|max:255'
+        'other_looking_services' => 'nullable|array',
+        'other_looking_services.*' => 'required|string|max:255'
 
 
     ]);
@@ -737,7 +737,7 @@ public function updateProfileByToken(Request $request)
     }
 
        // Update looking services
-       if ($request->has('looking_services') || $request->has('others_looking_services')) {
+       if ($request->has('looking_services') || $request->has('other_looking_services')) {
         // Delete existing looking services for this user
         $user->lookingServices()->delete();
 
@@ -751,7 +751,7 @@ public function updateProfileByToken(Request $request)
         }
 
         // Handle `others_looking_services` with `service_title`
-        if ($request->has('others_looking_services')) {
+        if ($request->has('other_looking_services')) {
             foreach ($request->others_looking_services as $serviceTitle) {
                 $user->lookingServices()->create([
                     'service_title' => $serviceTitle,
