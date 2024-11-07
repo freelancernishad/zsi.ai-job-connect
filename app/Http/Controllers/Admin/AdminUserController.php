@@ -207,18 +207,18 @@ class AdminUserController extends Controller
 
         } else {
             // If no role is specified, filter by active employees and employers
-            $query->where(function($q) {
-                $q->where(function($subQuery) {
-                    $subQuery->where('status', 'active')
-                             ->where('employer_status', 'inactive');
-                })->orWhere(function($subQuery) {
-                    $subQuery->where('status', 'inactive')
-                             ->where('employer_status', 'active');
-                })->orWhere(function($subQuery) {
-                    $subQuery->where('status', 'active')
-                             ->where('employer_status', 'active');
-                });
-            });
+            // $query->where(function($q) {
+            //     $q->where(function($subQuery) {
+            //         $subQuery->where('status', 'active')
+            //                  ->where('employer_status', 'inactive');
+            //     })->orWhere(function($subQuery) {
+            //         $subQuery->where('status', 'inactive')
+            //                  ->where('employer_status', 'active');
+            //     })->orWhere(function($subQuery) {
+            //         $subQuery->where('status', 'active')
+            //                  ->where('employer_status', 'active');
+            //     });
+            // });
         }
 
 
