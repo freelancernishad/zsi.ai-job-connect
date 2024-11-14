@@ -221,7 +221,7 @@ class AdminUserController extends Controller
             // });
         }
 
-
+        $query->whereNotNull('email_verified_at');
         // Get the service parameter for preferred job title filter (optional)
         $service = $request->query('service'); // This can be 1, 2, or 3
         // Apply preferred_job_title filter if service is provided
