@@ -139,4 +139,41 @@ class AdminAuthController extends Controller
             ], 401);
         }
     }
+
+
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string|min:8',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $admin = Auth::guard('admin')->user();
+
+        // Check if the current password matches
+        if (!Hash::check($request->input('current_password'), $admin->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect.',
+            ], 400);
+        }
+
+        // Update the password
+        $admin->password = Hash::make($request->input('new_password'));
+        $admin->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password updated successfully.',
+        ], 200);
+    }
+
 }

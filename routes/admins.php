@@ -26,6 +26,7 @@ Route::middleware('auth:admin')->group(function () {
         return 'admin access';
     });
 
+    Route::post('/admin/change-password', [AdminAuthController::class, 'changePassword']);
 
 
 
