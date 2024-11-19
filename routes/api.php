@@ -51,6 +51,7 @@ Route::get('/visitors/reports', [VisitorController::class, 'generateReports']);
 
 
 Route::get('services', [GlobalServiceController::class, 'index']);
+Route::get('/other/services', [GlobalServiceController::class, 'other_services']);
 Route::get('services/{id}', [GlobalServiceController::class, 'show']);
 
 Route::get('skill-lists', [GlobalSkillListController::class, 'index']);

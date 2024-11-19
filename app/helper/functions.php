@@ -164,3 +164,17 @@ function jsonResponse($success, $message, $data = null, $statusCode = 200, array
     return response()->json($response, $statusCode);
 }
 
+function otherPreferredJobTitle()
+{
+    $jobTitles = User::where('is_other_preferred_job_title', true)
+        ->select('preferred_job_title as name') // Select relevant columns and rename 'preferred_job_title' to 'name'
+        ->get();
+
+    // Format the response
+    return response()->json([
+        'success' => true,
+        'message' => 'Successfully retrieved the list of preferred job titles.',
+        'data' => $jobTitles
+    ]);
+}
+
