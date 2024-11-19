@@ -334,24 +334,31 @@ class User extends Authenticatable implements JWTSubject
                 });
             }
 
-              // Handle preferred_job_title filter
-              if (isset($filters['preferred_job_title'])) {
+            // Handle preferred_job_title filter
+            if (isset($filters['preferred_job_title'])) {
                 $serviceName = $filters['preferred_job_title'];
 
-                $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
-
-                if ($serviceId) {
-                    $query->where(function ($q) use ($serviceId) {
-                        $q->where('preferred_job_title', $serviceId)
-                            ->where('is_other_preferred_job_title', false);
-                    });
+                if (strtolower($serviceName) === 'other') {
+                    // If preferred_job_title is "Other"
+                    $query->where('is_other_preferred_job_title', true);
                 } else {
-                    $query->where(function ($q) use ($serviceName) {
-                        $q->where('preferred_job_title', $serviceName)
-                            ->where('is_other_preferred_job_title', true);
-                    });
+                    // Otherwise, match against the service name
+                    $serviceId = Service::where('name', $serviceName)->pluck('id')->first();
+
+                    if ($serviceId) {
+                        $query->where(function ($q) use ($serviceId) {
+                            $q->where('preferred_job_title', $serviceId)
+                                ->where('is_other_preferred_job_title', false);
+                        });
+                    } else {
+                        $query->where(function ($q) use ($serviceName) {
+                            $q->where('preferred_job_title', $serviceName)
+                                ->where('is_other_preferred_job_title', true);
+                        });
+                    }
                 }
             }
+
 
 
 
