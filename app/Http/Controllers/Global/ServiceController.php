@@ -22,7 +22,7 @@ class ServiceController extends Controller
     }
 
     public function other_services(){
-        return other_preferred_job_title();
+        return otherPreferredJobTitle();
     }
 
     // Get a single service by ID
