@@ -14,8 +14,8 @@ function stripe($array = [])
     $paymentIntent = \Stripe\PaymentIntent::create([
         'amount' => $array['amount'] * 100, // Amount in cents
         'currency' => 'usd',
-        'payment_method_types' => ['card'],
-        // 'payment_method_types' => ['card','amazon_pay','us_bank_account'],
+        // 'payment_method_types' => ['card'],
+        'payment_method_types' => ['card','amazon_pay','us_bank_account'],
     ]);
 
     // Create a new payment record in the database
