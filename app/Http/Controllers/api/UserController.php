@@ -775,7 +775,7 @@ public function updateProfileByToken(Request $request)
         // Find the activation payment for the user
         $payment = Payment::where('userid', $userId)
                         ->where('type', 'activation')
-                        ->whereIn('status', ['pending'])
+                        ->where('status', 'pending')
                         ->first();
 
         // Check if the payment exists
