@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
-
 use Carbon\Carbon;
+
 use App\Models\User;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -766,6 +767,61 @@ public function updateProfileByToken(Request $request)
 
 
 
+    public function cancelPaymentByUserId(Request $request)
+    {
+        // Get the authenticated user from the JWT token
+        $userId = auth()->user()->id;  // Assuming 'auth' is using JWT authentication
+
+        // Find the activation payment for the user
+        $payment = Payment::where('userid', $userId)
+                        ->where('type', 'activation')
+                        ->whereIn('status', ['pending'])
+                        ->first();
+
+        // Check if the payment exists
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending activation payment found for this user.',
+            ], 404);
+        }
+
+        // Check if the payment is already canceled
+        if ($payment->status === 'canceled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The payment has already been canceled.',
+            ], 400);
+        }
+
+        // Find the associated user
+        $user = User::find($userId);
+
+        // If the user exists and their status is 'active'
+        if ($user && $user->status === 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The payment cannot be canceled because the user is already active.',
+            ], 400);
+        }
+
+        // Update payment status to canceled
+        $payment->update(['status' => 'canceled']);
+
+        // If the user exists and is not active, update the user's status
+        if ($user) {
+            $user->update([
+                'status' => 'inactive',
+                'activation_payment_made' => false,
+                'activation_payment_cancel' => true,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Activation payment has been canceled successfully.',
+        ]);
+    }
 
 
 
