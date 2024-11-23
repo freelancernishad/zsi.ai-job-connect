@@ -338,7 +338,7 @@ class UserController extends Controller
         // Trigger the Stripe payment and get the redirect URL
         try {
             $paymentUrl = stripe($paymentData);
-            $user->update(['activation_payment_made' => true, 'activation_payment_cancel' => false]);
+            $user->update(['activation_payment_made' => false, 'activation_payment_cancel' => false]);
             return response()->json([
                 'success' => true,
                 'message' => 'Redirect to payment',
