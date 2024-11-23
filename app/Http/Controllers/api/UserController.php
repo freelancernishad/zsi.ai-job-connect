@@ -767,30 +767,32 @@ public function updateProfileByToken(Request $request)
 
 
 
-    public function cancelPaymentByUserId(Request $request)
-    {
-        // Get the authenticated user from the JWT token
-        $userId = auth()->user()->id;  // Assuming 'auth' is using JWT authentication
+public function cancelPaymentByUserId(Request $request)
+{
+    // Get the authenticated user from the JWT token
+    $userId = auth()->user()->id;  // Assuming 'auth' is using JWT authentication
 
-        // Find the activation payment for the user
-        $payment = Payment::where('userid', $userId)
-                        ->where('type', 'activation')
-                        ->where('status', 'pending')
-                        ->first();
+    // Find the activation payment(s) for the user
+    $payments = Payment::where('userid', $userId)
+                    ->where('type', 'activation')
+                    ->where('status', 'pending')
+                    ->get(); // Retrieve payments as a collection
 
-        // Check if the payment exists
-        if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No pending activation payment found for this user.',
-            ], 404);
-        }
+    // Check if there are no pending activation payments
+    if ($payments->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No pending activation payment found for this user.',
+        ], 404);
+    }
 
+    // Iterate over each payment to check its status
+    foreach ($payments as $payment) {
         // Check if the payment is already canceled
         if ($payment->status === 'canceled') {
             return response()->json([
                 'success' => false,
-                'message' => 'The payment has already been canceled.',
+                'message' => 'One of the payments has already been canceled.',
             ], 400);
         }
 
@@ -805,7 +807,7 @@ public function updateProfileByToken(Request $request)
             ], 400);
         }
 
-        // Update payment status to canceled
+        // Update the payment status to canceled
         $payment->update(['status' => 'canceled']);
 
         // If the user exists and is not active, update the user's status
@@ -816,12 +818,14 @@ public function updateProfileByToken(Request $request)
                 'activation_payment_cancel' => true,
             ]);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Activation payment has been canceled successfully.',
-        ]);
     }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Activation payment(s) have been canceled successfully.',
+    ]);
+}
+
 
 
 
