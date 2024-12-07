@@ -732,7 +732,7 @@ public function updateProfileByToken(Request $request)
                 'position' => $employmentData['position'],
                 'start_date' => date("Y-m-d", strtotime($employmentData['start_date'])),
                 'end_date' => date("Y-m-d", strtotime($employmentData['end_date'])),
-                'responsibilities' => $employmentData['responsibilities'],
+                'primary_responsibilities' => $employmentData['responsibilities'],
             ]);
         }
     }
