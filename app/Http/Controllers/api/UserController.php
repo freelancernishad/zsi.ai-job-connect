@@ -642,12 +642,16 @@ public function updateProfileByToken(Request $request)
     if ($request->has('profile_picture')) {
         $user->profile_picture = $request->profile_picture;
     }
+
+
     if ($request->has('preferred_job_title')) {
         $user->preferred_job_title = $request->preferred_job_title;
     }
     if ($request->has('is_other_preferred_job_title')) {
         $user->is_other_preferred_job_title = $request->is_other_preferred_job_title;
     }
+
+
     if ($request->has('company_name')) {
         $user->company_name = $request->company_name;
     }
